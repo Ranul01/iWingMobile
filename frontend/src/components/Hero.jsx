@@ -102,7 +102,7 @@ const Hero = () => {
   return (
     <div
       ref={heroRef}
-      className="bg-gradient-to-r from-blue-600 to-purple-700 text-white"
+      className="bg-gradient-to-r from-black to-gray-900 text-white"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -114,7 +114,7 @@ const Hero = () => {
                 Mobile Destination
               </span>
             </h1>
-            <p ref={paragraphRef} className="text-xl text-blue-100 max-w-md">
+            <p ref={paragraphRef} className="text-xl text-gray-300 max-w-md">
               Discover the latest smartphones and accessories at unbeatable
               prices. Quality products, fast shipping, and exceptional customer
               service.
@@ -122,13 +122,13 @@ const Hero = () => {
             <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-4">
               <Link
                 to="/phones"
-                className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors text-center"
+                className="bg-yellow-400 text-black px-8 py-4 rounded-lg font-semibold text-lg hover:bg-yellow-500 transition-colors text-center"
               >
                 Shop Phones
               </Link>
               <Link
                 to="/accessories"
-                className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white hover:text-blue-600 transition-colors text-center"
+                className="border-2 border-yellow-400 text-yellow-400 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-yellow-400 hover:text-black transition-colors text-center"
               >
                 Shop Accessories
               </Link>
@@ -140,11 +140,11 @@ const Hero = () => {
             {/* Feature Card 1 */}
             <div
               ref={(el) => (featureCardsRef.current[0] = el)}
-              className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center"
+              className="bg-yellow-400 bg-opacity-10 backdrop-blur-lg border border-yellow-400 border-opacity-20 rounded-xl p-6 text-center"
             >
               <div className="w-12 h-12 bg-yellow-400 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <svg
-                  className="w-6 h-6 text-blue-600"
+                  className="w-6 h-6 text-black"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -158,7 +158,7 @@ const Hero = () => {
                 </svg>
               </div>
               <h3 className="font-semibold mb-2">Latest Models</h3>
-              <p className="text-sm text-blue-100">
+              <p className="text-sm text-gray-300">
                 Premium smartphones from top brands
               </p>
             </div>
@@ -166,11 +166,11 @@ const Hero = () => {
             {/* Feature Card 2 */}
             <div
               ref={(el) => (featureCardsRef.current[1] = el)}
-              className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center"
+              className="bg-yellow-400 bg-opacity-10 backdrop-blur-lg border border-yellow-400 border-opacity-20 rounded-xl p-6 text-center"
             >
               <div className="w-12 h-12 bg-yellow-400 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <svg
-                  className="w-6 h-6 text-blue-600"
+                  className="w-6 h-6 text-black"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -184,7 +184,7 @@ const Hero = () => {
                 </svg>
               </div>
               <h3 className="font-semibold mb-2">Warranty</h3>
-              <p className="text-sm text-blue-100">
+              <p className="text-sm text-gray-300">
                 1 year warranty on all devices
               </p>
             </div>
@@ -192,11 +192,11 @@ const Hero = () => {
             {/* Feature Card 3 */}
             <div
               ref={(el) => (featureCardsRef.current[2] = el)}
-              className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center"
+              className="bg-yellow-400 bg-opacity-10 backdrop-blur-lg border border-yellow-400 border-opacity-20 rounded-xl p-6 text-center"
             >
               <div className="w-12 h-12 bg-yellow-400 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <svg
-                  className="w-6 h-6 text-blue-600"
+                  className="w-6 h-6 text-black"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -210,7 +210,7 @@ const Hero = () => {
                 </svg>
               </div>
               <h3 className="font-semibold mb-2">Fast Delivery</h3>
-              <p className="text-sm text-blue-100">
+              <p className="text-sm text-gray-300">
                 Free shipping on orders over $100
               </p>
             </div>
@@ -218,11 +218,11 @@ const Hero = () => {
             {/* Feature Card 4 */}
             <div
               ref={(el) => (featureCardsRef.current[3] = el)}
-              className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center"
+              className="bg-yellow-400 bg-opacity-10 backdrop-blur-lg border border-yellow-400 border-opacity-20 rounded-xl p-6 text-center"
             >
               <div className="w-12 h-12 bg-yellow-400 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <svg
-                  className="w-6 h-6 text-blue-600"
+                  className="w-6 h-6 text-black"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -236,7 +236,7 @@ const Hero = () => {
                 </svg>
               </div>
               <h3 className="font-semibold mb-2">24/7 Support</h3>
-              <p className="text-sm text-blue-100">
+              <p className="text-sm text-gray-300">
                 Expert customer service team
               </p>
             </div>
