@@ -1,6 +1,6 @@
-# iWingMobile - Apple Products E-Commerce Platform
+# iWingMobile - Complete Mobile Store Application
 
-A modern, animated e-commerce platform for selling Apple products with a beautiful Apple-inspired design using GSAP animations.
+A full-stack e-commerce application for mobile phones and accessories built with React.js frontend and Node.js backend.
 
 ## 🚀 Features
 
