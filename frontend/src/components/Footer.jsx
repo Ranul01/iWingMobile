@@ -5,14 +5,14 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-black text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">iW</span>
+              <div className="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center">
+                <span className="text-black font-bold text-lg">iW</span>
               </div>
               <span className="text-xl font-bold">iWingMobile</span>
             </div>
@@ -26,7 +26,7 @@ const Footer = () => {
                 href="https://twitter.com/iwingmobile"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-300 hover:text-white transition-colors"
+                className="text-gray-300 hover:text-yellow-400 transition-colors"
                 aria-label="Follow us on Twitter"
               >
                 <svg
@@ -41,7 +41,7 @@ const Footer = () => {
                 href="https://facebook.com/iwingmobile"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-300 hover:text-white transition-colors"
+                className="text-gray-300 hover:text-yellow-400 transition-colors"
                 aria-label="Follow us on Facebook"
               >
                 <svg
@@ -56,7 +56,7 @@ const Footer = () => {
                 href="https://pinterest.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-300 hover:text-white transition-colors"
+                className="text-gray-300 hover:text-yellow-400 transition-colors"
               >
                 <svg
                   className="w-6 h-6"
@@ -71,12 +71,14 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+            <h3 className="text-lg font-semibold mb-4 text-yellow-400">
+              Quick Links
+            </h3>
             <ul className="space-y-2">
               <li>
                 <Link
                   to="/"
-                  className="text-gray-300 hover:text-white transition-colors"
+                  className="text-gray-300 hover:text-yellow-400 transition-colors"
                 >
                   Home
                 </Link>
@@ -84,7 +86,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/phones"
-                  className="text-gray-300 hover:text-white transition-colors"
+                  className="text-gray-300 hover:text-yellow-400 transition-colors"
                 >
                   Phones
                 </Link>
@@ -92,7 +94,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/accessories"
-                  className="text-gray-300 hover:text-white transition-colors"
+                  className="text-gray-300 hover:text-yellow-400 transition-colors"
                 >
                   Accessories
                 </Link>
@@ -100,7 +102,7 @@ const Footer = () => {
               <li>
                 <button
                   type="button"
-                  className="text-gray-300 hover:text-white transition-colors text-left"
+                  className="text-gray-300 hover:text-yellow-400 transition-colors text-left"
                   onClick={() => alert("About Us page coming soon!")}
                 >
                   About Us
@@ -109,7 +111,7 @@ const Footer = () => {
               <li>
                 <button
                   type="button"
-                  className="text-gray-300 hover:text-white transition-colors text-left"
+                  className="text-gray-300 hover:text-yellow-400 transition-colors text-left"
                   onClick={() => alert("Contact page coming soon!")}
                 >
                   Contact
@@ -120,12 +122,14 @@ const Footer = () => {
 
           {/* Customer Service */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Customer Service</h3>
+            <h3 className="text-lg font-semibold mb-4 text-yellow-400">
+              Customer Service
+            </h3>
             <ul className="space-y-2">
               <li>
                 <button
                   type="button"
-                  className="text-gray-300 hover:text-white transition-colors text-left"
+                  className="text-gray-300 hover:text-yellow-400 transition-colors text-left"
                   onClick={() => alert("Help Center coming soon!")}
                 >
                   Help Center
@@ -134,7 +138,7 @@ const Footer = () => {
               <li>
                 <button
                   type="button"
-                  className="text-gray-300 hover:text-white transition-colors text-left"
+                  className="text-gray-300 hover:text-yellow-400 transition-colors text-left"
                   onClick={() => alert("Shipping Info coming soon!")}
                 >
                   Shipping Info
@@ -143,7 +147,7 @@ const Footer = () => {
               <li>
                 <button
                   type="button"
-                  className="text-gray-300 hover:text-white transition-colors text-left"
+                  className="text-gray-300 hover:text-yellow-400 transition-colors text-left"
                   onClick={() => alert("Returns page coming soon!")}
                 >
                   Returns
@@ -152,7 +156,7 @@ const Footer = () => {
               <li>
                 <button
                   type="button"
-                  className="text-gray-300 hover:text-white transition-colors text-left"
+                  className="text-gray-300 hover:text-yellow-400 transition-colors text-left"
                   onClick={() => alert("Warranty page coming soon!")}
                 >
                   Warranty
@@ -161,7 +165,7 @@ const Footer = () => {
               <li>
                 <button
                   type="button"
-                  className="text-gray-300 hover:text-white transition-colors text-left"
+                  className="text-gray-300 hover:text-yellow-400 transition-colors text-left"
                   onClick={() => alert("Privacy Policy coming soon!")}
                 >
                   Privacy Policy
@@ -179,14 +183,14 @@ const Footer = () => {
           <div className="flex items-center space-x-4 mt-4 md:mt-0">
             <span className="text-gray-300 text-sm">Secure payments with</span>
             <div className="flex space-x-2">
-              <div className="w-8 h-6 bg-blue-600 rounded flex items-center justify-center">
-                <span className="text-white text-xs font-bold">VISA</span>
+              <div className="w-8 h-6 bg-yellow-400 rounded flex items-center justify-center">
+                <span className="text-black text-xs font-bold">VISA</span>
               </div>
-              <div className="w-8 h-6 bg-red-600 rounded flex items-center justify-center">
-                <span className="text-white text-xs font-bold">MC</span>
+              <div className="w-8 h-6 bg-yellow-400 rounded flex items-center justify-center">
+                <span className="text-black text-xs font-bold">MC</span>
               </div>
-              <div className="w-8 h-6 bg-yellow-500 rounded flex items-center justify-center">
-                <span className="text-white text-xs font-bold">PP</span>
+              <div className="w-8 h-6 bg-yellow-400 rounded flex items-center justify-center">
+                <span className="text-black text-xs font-bold">PP</span>
               </div>
             </div>
           </div>
