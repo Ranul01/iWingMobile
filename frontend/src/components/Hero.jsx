@@ -1,23 +1,125 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { gsap } from "gsap";
 
 const Hero = () => {
+  const heroRef = useRef(null);
+  const titleWordsRef = useRef([]);
+  const highlightRef = useRef(null);
+  const paragraphRef = useRef(null);
+  const buttonsRef = useRef(null);
+  const featureCardsRef = useRef([]);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Set initial states
+      gsap.set(titleWordsRef.current, { opacity: 0, y: 50 });
+      gsap.set(highlightRef.current, { opacity: 0, scale: 0.8, y: 30 });
+      gsap.set(paragraphRef.current, { opacity: 0, y: 30 });
+      gsap.set(buttonsRef.current, { opacity: 0, y: 40 });
+      gsap.set(featureCardsRef.current, {
+        opacity: 0,
+        scale: 0.8,
+        rotation: 5,
+      });
+
+      // Create timeline for sequential animations
+      const tl = gsap.timeline({ delay: 0.5 });
+
+      // Animate each word one by one
+      tl.to(titleWordsRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        stagger: 0.2,
+        ease: "power2.out",
+      })
+        // Then animate the highlighted text with a bounce effect
+        .to(
+          highlightRef.current,
+          {
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "back.out(1.7)",
+          },
+          "-=0.3"
+        )
+        // Animate paragraph
+        .to(
+          paragraphRef.current,
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            ease: "power2.out",
+          },
+          "-=0.4"
+        )
+        // Animate buttons
+        .to(
+          buttonsRef.current,
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            ease: "power2.out",
+          },
+          "-=0.3"
+        )
+        // Animate feature cards with stagger
+        .to(
+          featureCardsRef.current,
+          {
+            opacity: 1,
+            scale: 1,
+            rotation: 0,
+            duration: 0.6,
+            stagger: 0.15,
+            ease: "back.out(1.2)",
+          },
+          "-=0.5"
+        );
+    }, heroRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  // Split text into individual words for animation
+  const renderAnimatedWords = (text) => {
+    return text.split(" ").map((word, index) => (
+      <span
+        key={index}
+        ref={(el) => (titleWordsRef.current[index] = el)}
+        className="inline-block mr-3"
+      >
+        {word}
+      </span>
+    ));
+  };
+
   return (
-    <div className="bg-gradient-to-r from-blue-600 to-purple-700 text-white">
+    <div
+      ref={heroRef}
+      className="bg-gradient-to-r from-blue-600 to-purple-700 text-white"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
           <div className="space-y-8">
             <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-              Your Ultimate
-              <span className="block text-yellow-400">Mobile Destination</span>
+              {renderAnimatedWords("Your Ultimate")}
+              <span ref={highlightRef} className="block text-yellow-400 mt-2">
+                Mobile Destination
+              </span>
             </h1>
-            <p className="text-xl text-blue-100 max-w-md">
+            <p ref={paragraphRef} className="text-xl text-blue-100 max-w-md">
               Discover the latest smartphones and accessories at unbeatable
               prices. Quality products, fast shipping, and exceptional customer
               service.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-4">
               <Link
                 to="/phones"
                 className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors text-center"
@@ -36,7 +138,10 @@ const Hero = () => {
           {/* Right Content - Feature Grid */}
           <div className="grid grid-cols-2 gap-6">
             {/* Feature Card 1 */}
-            <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center">
+            <div
+              ref={(el) => (featureCardsRef.current[0] = el)}
+              className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center"
+            >
               <div className="w-12 h-12 bg-yellow-400 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <svg
                   className="w-6 h-6 text-blue-600"
@@ -59,7 +164,10 @@ const Hero = () => {
             </div>
 
             {/* Feature Card 2 */}
-            <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center">
+            <div
+              ref={(el) => (featureCardsRef.current[1] = el)}
+              className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center"
+            >
               <div className="w-12 h-12 bg-yellow-400 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <svg
                   className="w-6 h-6 text-blue-600"
@@ -82,7 +190,10 @@ const Hero = () => {
             </div>
 
             {/* Feature Card 3 */}
-            <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center">
+            <div
+              ref={(el) => (featureCardsRef.current[2] = el)}
+              className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center"
+            >
               <div className="w-12 h-12 bg-yellow-400 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <svg
                   className="w-6 h-6 text-blue-600"
@@ -105,7 +216,10 @@ const Hero = () => {
             </div>
 
             {/* Feature Card 4 */}
-            <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center">
+            <div
+              ref={(el) => (featureCardsRef.current[3] = el)}
+              className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center"
+            >
               <div className="w-12 h-12 bg-yellow-400 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <svg
                   className="w-6 h-6 text-blue-600"
