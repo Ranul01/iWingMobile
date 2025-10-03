@@ -46,39 +46,6 @@ const Home = () => {
       {/* Hero Section */}
       <Hero />
 
-      {/* Main Hero Banner */}
-      {/* <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20"></div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-6xl md:text-8xl font-bold mb-8 bg-gradient-to-r from-yellow-400 via-purple-500 to-blue-500 bg-clip-text text-transparent">
-            iWingMobile
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Experience the future of mobile technology with our premium
-            collection of Apple products and accessories
-          </p>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Link
-              to="/phones"
-              className="group relative overflow-hidden bg-gradient-to-r from-yellow-400 to-yellow-500 text-black px-12 py-4 rounded-full font-bold text-lg transition-all duration-300 hover:shadow-2xl hover:shadow-yellow-400/25"
-            >
-              <span className="relative z-10">Explore Phones</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-yellow-500 to-yellow-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </Link>
-            <Link
-              to="/accessories"
-              className="group border-2 border-white/20 text-white px-12 py-4 rounded-full font-bold text-lg transition-all duration-300 hover:border-yellow-400 hover:bg-yellow-400/10"
-            >
-              Shop Accessories
-            </Link>
-          </div>
-        </div>
-
-        {/* Floating Elements */}
-      {/* <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full opacity-10 animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-48 h-48 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full opacity-10 animate-pulse delay-1000"></div>
-      </section> */}
-
       {/* Featured Products Section */}
       <section className="py-24 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900/50 to-black"></div>
