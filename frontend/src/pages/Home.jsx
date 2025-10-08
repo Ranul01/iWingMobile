@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Hero from "../components/Hero";
 import PhoneCard from "../components/PhoneCard";
@@ -11,13 +11,23 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Phones carousel state
+  const trackRef = useRef(null);
+  const [cardWidth, setCardWidth] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Accessories carousel state (new)
+  const accTrackRef = useRef(null);
+  const [accCardWidth, setAccCardWidth] = useState(0);
+  const [accIndex, setAccIndex] = useState(0);
+
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
       try {
         setLoading(true);
         const [phonesResponse, accessoriesResponse] = await Promise.all([
-          getFeaturedPhones(4),
-          getFeaturedAccessories(4),
+          getFeaturedPhones(8),
+          getFeaturedAccessories(8),
         ]);
 
         setFeaturedPhones(phonesResponse.data || []);
@@ -33,6 +43,40 @@ const Home = () => {
     fetchFeaturedProducts();
   }, []);
 
+  // compute phone card width
+  useEffect(() => {
+    const computeWidth = () => {
+      if (!trackRef.current) return;
+      const first = trackRef.current.querySelector(".phone-card");
+      if (!first) return setCardWidth(0);
+      const w = first.getBoundingClientRect().width;
+      const gap =
+        parseFloat(window.getComputedStyle(trackRef.current).gap) || 0;
+      setCardWidth(w + gap);
+    };
+
+    computeWidth();
+    window.addEventListener("resize", computeWidth);
+    return () => window.removeEventListener("resize", computeWidth);
+  }, [featuredPhones]);
+
+  // compute accessory card width
+  useEffect(() => {
+    const computeAccWidth = () => {
+      if (!accTrackRef.current) return;
+      const first = accTrackRef.current.querySelector(".accessory-card");
+      if (!first) return setAccCardWidth(0);
+      const w = first.getBoundingClientRect().width;
+      const gap =
+        parseFloat(window.getComputedStyle(accTrackRef.current).gap) || 0;
+      setAccCardWidth(w + gap);
+    };
+
+    computeAccWidth();
+    window.addEventListener("resize", computeAccWidth);
+    return () => window.removeEventListener("resize", computeAccWidth);
+  }, [featuredAccessories]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -41,123 +85,231 @@ const Home = () => {
     );
   }
 
+  const phones = featuredPhones || [];
+  const accessories = featuredAccessories || [];
+  const maxVisible = 4;
+
+  // --- Phones handlers (existing) ---
+  const displayPhones = phones.slice(0, Math.max(phones.length, 1));
+
+  const handlePrev = () => {
+    if (!trackRef.current) return;
+    const newIndex = Math.max(0, currentIndex - 1);
+    setCurrentIndex(newIndex);
+    trackRef.current.scrollTo({
+      left: newIndex * cardWidth,
+      behavior: "smooth",
+    });
+  };
+
+  const handleNext = () => {
+    if (!trackRef.current) return;
+    const visibleCount = Math.min(
+      maxVisible,
+      Math.max(1, Math.floor(trackRef.current.clientWidth / (cardWidth || 1)))
+    );
+    const maxIndex = Math.max(0, displayPhones.length - visibleCount);
+    const newIndex = Math.min(maxIndex, currentIndex + 1);
+    setCurrentIndex(newIndex);
+    trackRef.current.scrollTo({
+      left: newIndex * cardWidth,
+      behavior: "smooth",
+    });
+  };
+
+  // --- Accessories handlers (new, mirrors phones) ---
+  const displayAccessories = accessories.slice(
+    0,
+    Math.max(accessories.length, 1)
+  );
+
+  const handlePrevAcc = () => {
+    if (!accTrackRef.current) return;
+    const newIndex = Math.max(0, accIndex - 1);
+    setAccIndex(newIndex);
+    accTrackRef.current.scrollTo({
+      left: newIndex * accCardWidth,
+      behavior: "smooth",
+    });
+  };
+
+  const handleNextAcc = () => {
+    if (!accTrackRef.current) return;
+    const visibleCount = Math.min(
+      maxVisible,
+      Math.max(
+        1,
+        Math.floor(accTrackRef.current.clientWidth / (accCardWidth || 1))
+      )
+    );
+    const maxIndex = Math.max(0, displayAccessories.length - visibleCount);
+    const newIndex = Math.min(maxIndex, accIndex + 1);
+    setAccIndex(newIndex);
+    accTrackRef.current.scrollTo({
+      left: newIndex * accCardWidth,
+      behavior: "smooth",
+    });
+  };
+
   return (
     <div className="bg-black text-white">
       {/* Hero Section */}
       <Hero />
 
-      {/* Featured Products Section */}
-      <section className="py-24 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900/50 to-black"></div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Featured Phones */}
-          <div className="mb-20">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+      {/* Featured Phones - white background, cards with swipe buttons */}
+      <section className="py-16 bg-white text-black relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold">
                 Featured Phones
               </h2>
-              <div className="w-24 h-1 bg-gradient-to-r from-yellow-400 to-purple-500 mx-auto mb-6"></div>
-              <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-                Discover our handpicked selection of the latest iPhones
+              <p className="text-sm text-gray-600 mt-1">
+                Handpicked selection of the latest phones
               </p>
             </div>
 
-            {error ? (
-              <div className="text-center py-12">
-                <div className="bg-red-900/20 border border-red-500/50 text-red-400 px-6 py-4 rounded-lg mb-6 max-w-md mx-auto">
-                  {error}
-                </div>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="bg-yellow-400 text-black px-8 py-3 rounded-full font-bold hover:bg-yellow-500 transition-colors"
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handlePrev}
+                aria-label="Previous phones"
+                className="w-10 h-10 rounded-md bg-black text-yellow-400 hover:bg-gray-900 flex items-center justify-center shadow"
+              >
+                <svg
+                  className="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
                 >
-                  Try Again
-                </button>
-              </div>
+                  <path
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </button>
+              <button
+                onClick={handleNext}
+                aria-label="Next phones"
+                className="w-10 h-10 rounded-md bg-black text-yellow-400 hover:bg-gray-900 flex items-center justify-center shadow"
+              >
+                <svg
+                  className="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Phones Carousel track */}
+          <div
+            ref={trackRef}
+            className="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory"
+            style={{ scrollBehavior: "smooth", paddingBottom: 8 }}
+          >
+            {displayPhones.length > 0 ? (
+              displayPhones.map((phone) => (
+                <div
+                  key={phone._id}
+                  className="phone-card snap-start flex-shrink-0 w-11/12 sm:w-1/2 md:w-1/3 lg:w-1/4"
+                >
+                  <PhoneCard phone={phone} />
+                </div>
+              ))
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                {featuredPhones.length > 0 ? (
-                  featuredPhones.map((phone, index) => (
-                    <div
-                      key={phone._id}
-                      className="transform transition-all duration-500 hover:scale-105"
-                      style={{ animationDelay: `${index * 200}ms` }}
-                    >
-                      <PhoneCard phone={phone} />
-                    </div>
-                  ))
-                ) : (
-                  <div className="col-span-full text-center py-12">
-                    <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg
-                        className="w-8 h-8 text-gray-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </div>
-                    <p className="text-gray-500 text-lg">
-                      No featured phones available
-                    </p>
-                  </div>
-                )}
+              <div className="w-full text-center py-12">
+                <p className="text-gray-600">No featured phones available</p>
               </div>
             )}
           </div>
+        </div>
+      </section>
 
-          {/* Featured Accessories */}
-          <div>
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+      {/* Premium Accessories - now white carousel like phones */}
+      <section className="py-16 bg-white text-black relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold">
                 Premium Accessories
               </h2>
-              <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-blue-500 mx-auto mb-6"></div>
-              <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              <p className="text-sm text-gray-600 mt-1">
                 Complete your mobile experience with our premium accessories
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {featuredAccessories.length > 0 ? (
-                featuredAccessories.map((accessory, index) => (
-                  <div
-                    key={accessory._id}
-                    className="transform transition-all duration-500 hover:scale-105"
-                    style={{ animationDelay: `${index * 200}ms` }}
-                  >
-                    <AccessoryCard accessory={accessory} />
-                  </div>
-                ))
-              ) : (
-                <div className="col-span-full text-center py-12">
-                  <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg
-                      className="w-8 h-8 text-gray-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h4a1 1 0 011 1v1a1 1 0 01-1 1v9a2 2 0 01-2 2H6a2 2 0 01-2-2V7a1 1 0 01-1-1V5a1 1 0 011-1h4z"
-                      />
-                    </svg>
-                  </div>
-                  <p className="text-gray-500 text-lg">
-                    No featured accessories available
-                  </p>
-                </div>
-              )}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handlePrevAcc}
+                aria-label="Previous accessories"
+                className="w-10 h-10 rounded-md bg-black text-yellow-400 hover:bg-gray-900 flex items-center justify-center shadow"
+              >
+                <svg
+                  className="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </button>
+              <button
+                onClick={handleNextAcc}
+                aria-label="Next accessories"
+                className="w-10 h-10 rounded-md bg-black text-yellow-400 hover:bg-gray-900 flex items-center justify-center shadow"
+              >
+                <svg
+                  className="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
             </div>
+          </div>
+
+          {/* Accessories Carousel track */}
+          <div
+            ref={accTrackRef}
+            className="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory"
+            style={{ scrollBehavior: "smooth", paddingBottom: 8 }}
+          >
+            {displayAccessories.length > 0 ? (
+              displayAccessories.map((accessory) => (
+                <div
+                  key={accessory._id}
+                  className="accessory-card snap-start flex-shrink-0 w-11/12 sm:w-1/2 md:w-1/3 lg:w-1/4"
+                >
+                  <AccessoryCard accessory={accessory} />
+                </div>
+              ))
+            ) : (
+              <div className="w-full text-center py-12">
+                <p className="text-gray-600">No accessories available</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
