@@ -117,10 +117,6 @@ const Home = () => {
   };
 
   // --- Accessories handlers ---
-<<<<<<< Updated upstream
-=======
-  // --- Accessories handlers (new, mirrors phones) ---
->>>>>>> Stashed changes
   const displayAccessories = accessories.slice(
     0,
     Math.max(accessories.length, 1)
@@ -359,9 +355,9 @@ const Home = () => {
                 description:
                   "Our knowledgeable team is here to help you find the perfect device and provide ongoing support.",
               },
-            ].map((feature, index) => (
+            ].map((feature) => (
               <div
-                key={index}
+                key={feature.title}
                 className="group text-center p-8 rounded-2xl bg-gradient-to-b from-gray-900/50 to-black border border-gray-800 hover:border-yellow-400/50 transition-all duration-300 hover:transform hover:scale-105"
               >
                 <div className="w-20 h-20 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:shadow-lg group-hover:shadow-yellow-400/25 transition-all duration-300">

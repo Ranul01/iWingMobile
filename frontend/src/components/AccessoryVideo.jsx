@@ -16,7 +16,7 @@ const AccessoryVideo = () => {
   const renderWords = (text) =>
     text.split(" ").map((w, i) => (
       <span
-        key={i}
+        key={`${w}-${i}`}
         ref={(el) => {
           if (el) wordsRef.current[i] = el;
         }}
@@ -27,7 +27,10 @@ const AccessoryVideo = () => {
     ));
 
   useLayoutEffect(() => {
-    if (!sectionRef.current) return;
+    const section = sectionRef.current;
+
+    if (!section) return;
+
     // Prevent duplicate (StrictMode / fast remount) runs
     if (animatedOnceRef.current) {
       // Ensure visible if animation skipped
@@ -41,7 +44,7 @@ const AccessoryVideo = () => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: sectionRef.current,
+          trigger: section,
           start: "top 80%",
           toggleActions: "play none none reverse",
         },
@@ -79,19 +82,20 @@ const AccessoryVideo = () => {
           "-=0.4"
         );
 
-      if (videoRef.current) {
-        gsap.to(videoRef.current, {
+      const video = videoRef.current;
+      if (video) {
+        gsap.to(video, {
           scale: 1.08,
           ease: "none",
           scrollTrigger: {
-            trigger: sectionRef.current,
+            trigger: section,
             start: "top bottom",
             end: "bottom top",
             scrub: true,
           },
         });
       }
-    }, sectionRef);
+    }, section);
 
     // Refresh after layout to ensure correct measurements
     requestAnimationFrame(() => ScrollTrigger.refresh());
@@ -100,22 +104,38 @@ const AccessoryVideo = () => {
   }, []);
 
   // Intersection-based play/pause (independent of GSAP state)
-  useEffect(() => {
-    if (!sectionRef.current || !videoRef.current) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            videoRef.current.play().catch(() => {});
-          } else {
-            videoRef.current.pause();
-          }
+  // Extracted observer callback to reduce nesting
+  const handleIntersection = (entries) => {
+    entries.forEach((entry) => {
+      const currentVideo = videoRef.current;
+      if (!currentVideo) return;
+
+      if (entry.isIntersecting) {
+        currentVideo.play().catch((error) => {
+          // Silently handle autoplay policy errors
+          console.debug("Video autoplay prevented:", error);
         });
-      },
-      { threshold: 0.15 }
-    );
-    observer.observe(sectionRef.current);
-    return () => observer.disconnect();
+      } else {
+        currentVideo.pause();
+      }
+    });
+  };
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    const video = videoRef.current;
+
+    if (!section || !video) return;
+
+    const observer = new IntersectionObserver(handleIntersection, {
+      threshold: 0.15,
+    });
+
+    observer.observe(section);
+
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   return (
@@ -129,8 +149,12 @@ const AccessoryVideo = () => {
           autoPlay
           preload="auto"
           className="w-full h-full object-cover will-change-transform"
+          onError={(e) => {
+            console.error("Video error:", e);
+          }}
         >
           <source src={accessoryVideo} type="video/mp4" />
+          Your browser does not support the video tag.
         </video>
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/80" />
       </div>

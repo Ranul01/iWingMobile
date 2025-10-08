@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from "react";
 import PhoneCard from "../components/PhoneCard";
-import promax from "../images/17_Pro_Max.jpg";
-import pro15 from "../images/17_pro.jpg";
-
-// Set to true later when backend/Firebase is ready
-const USE_API = false;
+import { getPhones, getBrands } from "../utils/api";
 
 const Phones = () => {
+  const [phones, setPhones] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [filters, setFilters] = useState({
     page: 1,
     limit: 12,
@@ -20,147 +20,137 @@ const Phones = () => {
     sortOrder: "desc",
   });
 
-  // Local sample data
-  const sampleIphones = useMemo(
-    () => [
-      {
-        _id: "sample-iphone-15-pro-max",
-        name: "iPhone 15 Pro Max",
-        brand: "Apple",
-        price: 1199,
-        originalPrice: 1299,
-        featured: true,
-        inStock: true,
-        rating: 4.9,
-        images: [promax],
-        // image: promax,
-        createdAt: "2024-09-20",
-      },
-      {
-        _id: "sample-iphone-15-pro",
-        name: "iPhone 15 Pro",
-        brand: "Apple",
-        price: 999,
-        originalPrice: 1099,
-        featured: true,
-        inStock: true,
-        rating: 4.8,
-        images: [pro15],
-        // image: pro15,
-        createdAt: "2024-09-20",
-      },
-      {
-        _id: "sample-iphone-15-plus",
-        name: "iPhone 15 Plus",
-        brand: "Apple",
-        price: 899,
-        originalPrice: 949,
-        featured: true,
-        inStock: true,
-        rating: 4.7,
-        images: [
-          "https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-15-plus-pink",
-        ],
-        // image:
-        //   "https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-15-plus-pink",
-        createdAt: "2024-09-10",
-      },
-      {
-        _id: "sample-iphone-15",
-        name: "iPhone 15",
-        brand: "Apple",
-        price: 799,
-        originalPrice: 849,
-        featured: true,
-        inStock: true,
-        rating: 4.7,
-        images: [
-          "https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-15-blue",
-        ],
-        image:
-          "https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-15-blue",
-        createdAt: "2024-09-10",
-      },
-    ],
-    []
-  );
-
-  // Simulate initial load
+  // Fetch phones from Firebase
   useEffect(() => {
-    let t = setTimeout(() => setLoading(false), 200);
-    return () => clearTimeout(t);
+    const fetchPhones = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Fetch phones with sorting
+        const response = await getPhones({
+          sortBy: filters.sortBy,
+          sortOrder: filters.sortOrder,
+          brand: filters.brand || undefined,
+        });
+
+        setPhones(response.data || []);
+      } catch (err) {
+        console.error("Error fetching phones:", err);
+        setError("Failed to load phones. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPhones();
+  }, [filters.sortBy, filters.sortOrder, filters.brand]);
+
+  // Fetch available brands
+  useEffect(() => {
+    const fetchBrands = async () => {
+      try {
+        const brandsList = await getBrands();
+        setBrands(brandsList);
+      } catch (err) {
+        console.error("Error fetching brands:", err);
+      }
+    };
+
+    fetchBrands();
   }, []);
 
-  // Local filtered + sorted list
-  const processed = useMemo(() => {
-    let list = [...sampleIphones];
+  // Client-side filtering for search and price
+  const filteredPhones = useMemo(() => {
+    let result = [...phones];
 
-    // Search
+    // Search filter
     if (filters.search.trim()) {
-      const q = filters.search.toLowerCase();
-      list = list.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          (p.brand || "").toLowerCase().includes(q)
+      const searchLower = filters.search.toLowerCase();
+      result = result.filter(
+        (phone) =>
+          phone.name?.toLowerCase().includes(searchLower) ||
+          phone.brand?.toLowerCase().includes(searchLower) ||
+          phone.model?.toLowerCase().includes(searchLower)
       );
-    }
-
-    // Brand filter
-    if (filters.brand) {
-      list = list.filter((p) => p.brand === filters.brand);
     }
 
     // Price filters
     if (filters.minPrice) {
-      list = list.filter((p) => p.price >= Number(filters.minPrice));
+      result = result.filter(
+        (phone) => phone.price >= Number(filters.minPrice)
+      );
     }
     if (filters.maxPrice) {
-      list = list.filter((p) => p.price <= Number(filters.maxPrice));
+      result = result.filter(
+        (phone) => phone.price <= Number(filters.maxPrice)
+      );
     }
 
-    // Sort
-    const dir = filters.sortOrder === "asc" ? 1 : -1;
-    list.sort((a, b) => {
-      switch (filters.sortBy) {
-        case "price":
-          return (a.price - b.price) * dir;
-        case "name":
-          return a.name.localeCompare(b.name) * dir;
-        case "rating.average":
-          return ((a.rating || 0) - (b.rating || 0)) * dir;
-        case "createdAt":
-        default:
-          return (
-            (new Date(a.createdAt || 0) - new Date(b.createdAt || 0)) * dir
-          );
-      }
-    });
-
-    return list;
-  }, [sampleIphones, filters]);
+    return result;
+  }, [phones, filters.search, filters.minPrice, filters.maxPrice]);
 
   // Pagination
-  const totalItems = processed.length;
+  const totalItems = filteredPhones.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / filters.limit));
   const currentPage = Math.min(filters.page, totalPages);
-  const start = (currentPage - 1) * filters.limit;
-  const pageItems = processed.slice(start, start + filters.limit);
+  const startIndex = (currentPage - 1) * filters.limit;
+  const paginatedPhones = filteredPhones.slice(
+    startIndex,
+    startIndex + filters.limit
+  );
 
   const handleFilterChange = (newFilters) => {
     setFilters((prev) => {
       const next = { ...prev, ...newFilters };
-      // Reset page only if search/brand/sort changed (not when clicking page)
-      const pageChangingOnly =
+      // Reset to page 1 if not just changing page
+      const isPageChange =
         Object.keys(newFilters).length === 1 && "page" in newFilters;
-      if (!pageChangingOnly) next.page = 1;
+      if (!isPageChange) {
+        next.page = 1;
+      }
       return next;
+    });
+  };
+
+  const handleResetFilters = () => {
+    setFilters({
+      page: 1,
+      limit: 12,
+      search: "",
+      brand: "",
+      category: "",
+      minPrice: "",
+      maxPrice: "",
+      sortBy: "createdAt",
+      sortOrder: "desc",
     });
   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <output className="animate-spin rounded-full h-24 w-24 border-b-4 border-blue-600" />
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-24 w-24 border-b-4 border-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading phones...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="text-red-500 text-xl mb-4">⚠️</div>
+          <p className="text-gray-800 font-semibold mb-2">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
@@ -168,19 +158,20 @@ const Phones = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
             Mobile Phones
           </h1>
           <p className="text-gray-600">
-            {USE_API
-              ? "Discover the latest smartphones"
-              : "Showing sample iPhones (add backend to replace)"}
+            Discover our latest collection of smartphones
           </p>
         </div>
 
+        {/* Filters */}
         <div className="mb-8 bg-white p-6 rounded-lg shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            {/* Search */}
             <input
               type="text"
               placeholder="Search phones..."
@@ -188,18 +179,22 @@ const Phones = () => {
               onChange={(e) => handleFilterChange({ search: e.target.value })}
               className="md:col-span-2 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
-<<<<<<< Updated upstream
 
-=======
+            {/* Brand Filter */}
             <select
               value={filters.brand}
               onChange={(e) => handleFilterChange({ brand: e.target.value })}
               className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">All Brands</option>
-              <option value="Apple">Apple</option>
+              {brands.map((brand) => (
+                <option key={brand} value={brand}>
+                  {brand}
+                </option>
+              ))}
             </select>
->>>>>>> Stashed changes
+
+            {/* Sort By */}
             <select
               value={filters.sortBy}
               onChange={(e) => handleFilterChange({ sortBy: e.target.value })}
@@ -210,7 +205,30 @@ const Phones = () => {
               <option value="name">Name</option>
               <option value="rating.average">Rating</option>
             </select>
+          </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Min Price */}
+            <input
+              type="number"
+              placeholder="Min Price"
+              value={filters.minPrice}
+              onChange={(e) => handleFilterChange({ minPrice: e.target.value })}
+              className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              min="0"
+            />
+
+            {/* Max Price */}
+            <input
+              type="number"
+              placeholder="Max Price"
+              value={filters.maxPrice}
+              onChange={(e) => handleFilterChange({ maxPrice: e.target.value })}
+              className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              min="0"
+            />
+
+            {/* Sort Order */}
             <select
               value={filters.sortOrder}
               onChange={(e) =>
@@ -218,51 +236,126 @@ const Phones = () => {
               }
               className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="desc">Descending</option>
-              <option value="asc">Ascending</option>
+              <option value="desc">High to Low</option>
+              <option value="asc">Low to High</option>
             </select>
           </div>
+
+          {/* Reset Filters */}
+          {(filters.search ||
+            filters.brand ||
+            filters.minPrice ||
+            filters.maxPrice) && (
+            <div className="mt-4">
+              <button
+                onClick={handleResetFilters}
+                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              >
+                Clear All Filters
+              </button>
+            </div>
+          )}
         </div>
 
-        <div className="mb-6">
+        {/* Results Count */}
+        <div className="mb-6 flex items-center justify-between">
           <p className="text-gray-600">
-            Showing {pageItems.length} of {totalItems} sample phones
+            Showing {startIndex + 1}-
+            {Math.min(startIndex + filters.limit, totalItems)} of {totalItems}{" "}
+            phones
           </p>
+          {phones.length === 0 && (
+            <p className="text-amber-600">
+              No phones added yet. Add phones from admin panel.
+            </p>
+          )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-          {pageItems.map((phone) => {
-            const img =
-              phone.image ||
-              (Array.isArray(phone.images) ? phone.images[0] : undefined);
-            return (
+        {/* Phone Grid */}
+        {paginatedPhones.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+            {paginatedPhones.map((phone) => (
               <PhoneCard
-                key={phone._id}
+                key={phone.id || phone._id}
                 phone={{
                   ...phone,
-                  image: img,
-                  images: phone.images || [img],
+                  image: phone.images?.[0]?.url || phone.image,
+                  images: phone.images || [],
                 }}
               />
-            );
-          })}
-        </div>
-
-        {totalPages > 1 && (
-          <div className="flex justify-center space-x-2">
-            {Array.from({ length: totalPages }).map((_, i) => (
-              <button
-                key={i + 1}
-                onClick={() => handleFilterChange({ page: i + 1 })}
-                className={`px-4 py-2 rounded-lg ${
-                  currentPage === i + 1
-                    ? "bg-blue-600 text-white"
-                    : "bg-white text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                {i + 1}
-              </button>
             ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-white rounded-lg">
+            <p className="text-gray-500 text-lg mb-2">No phones found</p>
+            <p className="text-gray-400">
+              {filters.search ||
+              filters.brand ||
+              filters.minPrice ||
+              filters.maxPrice
+                ? "Try adjusting your filters"
+                : "Add phones from the admin panel to display them here"}
+            </p>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center space-x-2">
+            <button
+              onClick={() =>
+                handleFilterChange({ page: Math.max(1, currentPage - 1) })
+              }
+              disabled={currentPage === 1}
+              className="px-4 py-2 rounded-lg bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+
+            {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
+              const pageNum = i + 1;
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => handleFilterChange({ page: pageNum })}
+                  className={`px-4 py-2 rounded-lg ${
+                    currentPage === pageNum
+                      ? "bg-blue-600 text-white"
+                      : "bg-white text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+
+            {totalPages > 5 && (
+              <>
+                <span className="px-2">...</span>
+                <button
+                  onClick={() => handleFilterChange({ page: totalPages })}
+                  className={`px-4 py-2 rounded-lg ${
+                    currentPage === totalPages
+                      ? "bg-blue-600 text-white"
+                      : "bg-white text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  {totalPages}
+                </button>
+              </>
+            )}
+
+            <button
+              onClick={() =>
+                handleFilterChange({
+                  page: Math.min(totalPages, currentPage + 1),
+                })
+              }
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 rounded-lg bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
           </div>
         )}
       </div>

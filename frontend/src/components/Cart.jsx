@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import PropTypes from "prop-types";
 import { useCart } from "../context/CartContex";
 
 const Cart = ({ isOpen, onClose }) => {
   const { items, total, removeItem, updateQuantity, clearCart, itemCount } =
     useCart();
+  const cartRef = useRef(null);
+  const backdropRef = useRef(null);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-US", {
@@ -20,18 +23,58 @@ const Cart = ({ isOpen, onClose }) => {
     }
   };
 
+  // Handle animations properly
+  useEffect(() => {
+    // Capture ref values at the start of the effect
+    const cart = cartRef.current;
+    const backdrop = backdropRef.current;
+
+    if (isOpen && cart && backdrop) {
+      // Set initial state
+      cart.style.transform = "translateX(100%)";
+      backdrop.style.opacity = "0";
+
+      // Animate in
+      requestAnimationFrame(() => {
+        cart.style.transition = "transform 0.3s ease-out";
+        backdrop.style.transition = "opacity 0.3s ease-out";
+        cart.style.transform = "translateX(0)";
+        backdrop.style.opacity = "1";
+      });
+    }
+
+    // Cleanup function using captured variables
+    return () => {
+      if (cart) {
+        cart.style.transition = "";
+        cart.style.transform = "";
+      }
+      if (backdrop) {
+        backdrop.style.transition = "";
+        backdrop.style.opacity = "";
+      }
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black bg-opacity-50 z-50 transition-opacity"
+      <button
+        ref={backdropRef}
+        type="button"
+        className="fixed inset-0 bg-black bg-opacity-50 z-50"
+        aria-label="Close cart backdrop"
         onClick={onClose}
+        style={{ cursor: "pointer" }}
       />
 
       {/* Cart Sidebar */}
-      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl z-50 transform transition-transform">
+      <div
+        ref={cartRef}
+        className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl z-50"
+      >
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
@@ -41,6 +84,7 @@ const Cart = ({ isOpen, onClose }) => {
             <button
               onClick={onClose}
               className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Close cart"
             >
               <svg
                 className="w-6 h-6"
@@ -85,12 +129,16 @@ const Cart = ({ isOpen, onClose }) => {
                     className="flex items-center space-x-4 bg-gray-50 p-3 rounded-lg"
                   >
                     {/* Product Image */}
-                    <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center">
+                    <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center overflow-hidden">
                       {item.images && item.images.length > 0 ? (
                         <img
-                          src={item.images[0].url}
+                          src={item.images[0].url || item.image}
                           alt={item.name}
-                          className="w-full h-full object-cover rounded-md"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.src =
+                              "https://via.placeholder.com/64x64?text=No+Image";
+                          }}
                         />
                       ) : (
                         <span className="text-gray-400 text-xs">No Image</span>
@@ -99,7 +147,7 @@ const Cart = ({ isOpen, onClose }) => {
 
                     {/* Product Info */}
                     <div className="flex-1">
-                      <h3 className="font-medium text-gray-900 text-sm">
+                      <h3 className="font-medium text-gray-900 text-sm line-clamp-2">
                         {item.name}
                       </h3>
                       <p className="text-gray-600 text-xs">{item.brand}</p>
@@ -115,6 +163,7 @@ const Cart = ({ isOpen, onClose }) => {
                           handleQuantityChange(item.id, item.quantity - 1)
                         }
                         className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors"
+                        aria-label="Decrease quantity"
                       >
                         <svg
                           className="w-4 h-4"
@@ -138,6 +187,7 @@ const Cart = ({ isOpen, onClose }) => {
                           handleQuantityChange(item.id, item.quantity + 1)
                         }
                         className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors"
+                        aria-label="Increase quantity"
                       >
                         <svg
                           className="w-4 h-4"
@@ -159,6 +209,7 @@ const Cart = ({ isOpen, onClose }) => {
                     <button
                       onClick={() => removeItem(item.id)}
                       className="p-2 text-red-500 hover:text-red-700 transition-colors"
+                      aria-label="Remove item"
                     >
                       <svg
                         className="w-5 h-5"
@@ -191,7 +242,10 @@ const Cart = ({ isOpen, onClose }) => {
 
               {/* Action Buttons */}
               <div className="space-y-2">
-                <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                <button
+                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                  onClick={() => alert("Checkout functionality coming soon!")}
+                >
                   Checkout
                 </button>
                 <button
@@ -207,6 +261,11 @@ const Cart = ({ isOpen, onClose }) => {
       </div>
     </>
   );
+};
+
+Cart.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
 export default Cart;

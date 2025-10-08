@@ -36,7 +36,7 @@ const Navbar = () => {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-6 md:flex-1 justify-center">
+            <div className="hidden md:flex items-center space-x-6">
               {navLinks.map((link) => {
                 const active = isActiveRoute(link.path);
                 return (
@@ -58,67 +58,64 @@ const Navbar = () => {
               })}
             </div>
 
-            {/* Cart + Mobile Menu */}
-            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+            {/* Right Side: Cart + Mobile Menu */}
+            <div className="flex items-center space-x-2">
               {/* Cart Button */}
-              <div className="flex-shrink-0">
-                <button
-                  onClick={() => setIsCartOpen(true)}
-                  className="relative p-2 text-gray-300 hover:text-yellow-400 transition-colors hover:bg-yellow-400/10 rounded-md w-10 h-10 flex items-center justify-center"
-                  aria-label="Open cart"
+              <button
+                onClick={() => setIsCartOpen(true)}
+                className="relative p-2 text-gray-300 hover:text-yellow-400 transition-colors hover:bg-yellow-400/10 rounded-md"
+                aria-label="Open cart"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <svg
-                    className="w-6 h-6 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5-5M7 13l-2.5 5M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"
+                  />
+                </svg>
+                {itemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-yellow-400 text-black text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1">
+                    {itemCount > 99 ? "99+" : itemCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="md:hidden p-2 text-gray-300 hover:text-yellow-400 transition-colors hover:bg-yellow-400/10 rounded-md"
+                aria-label="Toggle menu"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  {isMobileMenuOpen ? (
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5-5M7 13l-2.5 5M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"
+                      d="M6 18L18 6M6 6l12 12"
                     />
-                  </svg>
-                  {itemCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-yellow-400 text-black text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                      {itemCount}
-                    </span>
+                  ) : (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
                   )}
-                </button>
-              </div>
-
-              {/* Mobile Menu Button */}
-              <div className="flex-shrink-0 md:hidden">
-                <button
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="p-2 text-gray-300 hover:text-yellow-400 transition-colors hover:bg-yellow-400/10 rounded-md w-10 h-10 flex items-center justify-center"
-                  aria-label="Toggle menu"
-                >
-                  <svg
-                    className="w-6 h-6 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    {isMobileMenuOpen ? (
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    ) : (
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 6h16M4 12h16M4 18h16"
-                      />
-                    )}
-                  </svg>
-                </button>
-              </div>
+                </svg>
+              </button>
             </div>
           </div>
 

@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 const ContactModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
@@ -6,9 +7,12 @@ const ContactModal = ({ isOpen, onClose }) => {
   return (
     <>
       {/* Backdrop */}
-      <div
+      <button
+        type="button"
         className="fixed inset-0 bg-black bg-opacity-50 z-50 transition-opacity"
+        aria-label="Close modal"
         onClick={onClose}
+        style={{ cursor: "pointer" }}
       />
 
       {/* Modal */}
@@ -39,10 +43,14 @@ const ContactModal = ({ isOpen, onClose }) => {
           <div className="p-6">
             <form className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="contact-name"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Name
                 </label>
                 <input
+                  id="contact-name"
                   type="text"
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Your name"
@@ -50,10 +58,14 @@ const ContactModal = ({ isOpen, onClose }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="contact-email"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Email
                 </label>
                 <input
+                  id="contact-email"
                   type="email"
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="your@email.com"
@@ -61,10 +73,14 @@ const ContactModal = ({ isOpen, onClose }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="contact-message"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Message
                 </label>
                 <textarea
+                  id="contact-message"
                   rows={4}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="How can we help you?"
@@ -92,6 +108,10 @@ const ContactModal = ({ isOpen, onClose }) => {
       </div>
     </>
   );
+};
+ContactModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
 export default ContactModal;

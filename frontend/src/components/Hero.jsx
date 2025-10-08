@@ -14,24 +14,57 @@ const Hero = () => {
   const buttonsRef = useRef(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
 
+  // Extracted handlers to avoid deep nesting
+  const handleVideoPlay = (video) => {
+    if (video) video.play().catch(() => {});
+  };
+
+  const handleVideoPause = (video) => {
+    if (video) video.pause();
+  };
+
   useEffect(() => {
+    // Capture refs at the start of the effect
+    const hero = heroRef.current;
+    const video = videoRef.current;
+    const highlight = highlightRef.current;
+    const paragraph = paragraphRef.current;
+    const buttons = buttonsRef.current;
+    const titleWords = titleWordsRef.current.filter(Boolean); // Filter out null/undefined
+
+    if (!hero) return;
+
     const ctx = gsap.context(() => {
-      gsap.set(titleWordsRef.current, { opacity: 0, y: 50 });
-      gsap.set(highlightRef.current, { opacity: 0, scale: 0.8, y: 30 });
-      gsap.set(paragraphRef.current, { opacity: 0, y: 30 });
-      gsap.set(buttonsRef?.current, { opacity: 0, y: 40 });
+      // Only set initial states for elements that exist
+      if (titleWords.length > 0) {
+        gsap.set(titleWords, { opacity: 0, y: 50 });
+      }
+      if (highlight) {
+        gsap.set(highlight, { opacity: 0, scale: 0.8, y: 30 });
+      }
+      if (paragraph) {
+        gsap.set(paragraph, { opacity: 0, y: 30 });
+      }
+      if (buttons) {
+        gsap.set(buttons, { opacity: 0, y: 40 });
+      }
 
       const tl = gsap.timeline({ delay: 0.5 });
 
-      tl.to(titleWordsRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        stagger: 0.2,
-        ease: "power2.out",
-      })
-        .to(
-          highlightRef.current,
+      // Only animate elements that exist
+      if (titleWords.length > 0) {
+        tl.to(titleWords, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.2,
+          ease: "power2.out",
+        });
+      }
+
+      if (highlight) {
+        tl.to(
+          highlight,
           {
             opacity: 1,
             scale: 1,
@@ -39,10 +72,13 @@ const Hero = () => {
             duration: 0.8,
             ease: "back.out(1.7)",
           },
-          "-=0.3"
-        )
-        .to(
-          paragraphRef.current,
+          titleWords.length > 0 ? "-=0.3" : 0
+        );
+      }
+
+      if (paragraph) {
+        tl.to(
+          paragraph,
           {
             opacity: 1,
             y: 0,
@@ -50,9 +86,12 @@ const Hero = () => {
             ease: "power2.out",
           },
           "-=0.4"
-        )
-        .to(
-          buttonsRef?.current,
+        );
+      }
+
+      if (buttons) {
+        tl.to(
+          buttons,
           {
             opacity: 1,
             y: 0,
@@ -61,33 +100,34 @@ const Hero = () => {
           },
           "-=0.3"
         );
+      }
 
-      if (videoRef.current && videoLoaded) {
+      // Video animations only if video exists and is loaded
+      if (video && videoLoaded) {
         ScrollTrigger.create({
-          trigger: heroRef.current,
+          trigger: hero,
           start: "top center",
           end: "bottom center",
-          onEnter: () => videoRef.current?.play(),
-          onLeave: () => videoRef.current?.pause(),
-          onEnterBack: () => videoRef.current?.play(),
-          onLeaveBack: () => videoRef.current?.pause(),
+          onEnter: () => handleVideoPlay(video),
+          onLeave: () => handleVideoPause(video),
+          onEnterBack: () => handleVideoPlay(video),
+          onLeaveBack: () => handleVideoPause(video),
         });
 
-        gsap.to(videoRef.current, {
+        gsap.to(video, {
           scale: 1.1,
           scrollTrigger: {
-            trigger: heroRef.current,
+            trigger: hero,
             start: "top bottom",
             end: "bottom top",
             scrub: 1,
           },
         });
       }
-    }, heroRef);
+    }, hero);
 
     return () => {
       ctx.revert();
-      ScrollTrigger.getAll().forEach((t) => t.kill());
     };
   }, [videoLoaded]);
 
@@ -96,8 +136,10 @@ const Hero = () => {
   const renderAnimatedWords = (text) =>
     text.split(" ").map((word, i) => (
       <span
-        key={i}
-        ref={(el) => (titleWordsRef.current[i] = el)}
+        key={`${word}-${i}`}
+        ref={(el) => {
+          if (el) titleWordsRef.current[i] = el;
+        }}
         className="inline-block mr-3"
       >
         {word}
@@ -115,11 +157,12 @@ const Hero = () => {
           playsInline
           preload="metadata"
           onLoadedData={handleVideoLoad}
+          onError={(e) => {
+            console.debug("Video load error:", e);
+          }}
           className="absolute inset-0 w-full h-full object-cover"
         >
           <source src={heroVideo} type="video/mp4" />
-          {/* Optional additional format */}
-          {/* <source src="/video/hero-video.webm" type="video/webm" /> */}
           Your browser does not support the video tag.
         </video>
 
@@ -127,10 +170,10 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/80"></div>
       </div>
 
-      {/* Content (single column now) */}
+      {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-28 min-h-screen flex items-center">
         <div className="w-full text-center space-y-10">
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight">
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight text-white">
             {renderAnimatedWords("Your Ultimate")}
             <span ref={highlightRef} className="block text-yellow-400 mt-4">
               Mobile Destination
@@ -145,10 +188,17 @@ const Hero = () => {
             service.
           </p>
 
-          {/* If you re-enable buttons later, wrap them with ref={buttonsRef} */}
-          {/* <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-4 justify-center">
-            ...
-          </div> */}
+          {/* Uncomment if you want to add buttons back */}
+          {/* 
+          <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button className="bg-yellow-400 text-black px-8 py-3 rounded-full font-bold text-lg hover:bg-yellow-500 transition-colors">
+              Shop Now
+            </button>
+            <button className="border-2 border-white text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-white hover:text-black transition-colors">
+              Learn More
+            </button>
+          </div>
+          */}
         </div>
       </div>
 

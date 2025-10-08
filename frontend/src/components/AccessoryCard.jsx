@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { useCart } from "../context/CartContex";
 
 const AccessoryCard = ({ accessory }) => {
@@ -12,14 +13,21 @@ const AccessoryCard = ({ accessory }) => {
   };
 
   const handleAddToCart = () => {
+    // Don't add if already in cart or out of stock
+    if (!accessory.inStock || isItemInCart(accessory._id)) {
+      return;
+    }
+
     addItem({
       id: accessory._id,
       name: accessory.name,
       brand: accessory.brand,
       price: accessory.price,
+      image: accessory.images?.[0]?.url,
       images: accessory.images || [],
       type: "accessory",
       category: accessory.category,
+      inStock: accessory.inStock,
     });
   };
 
@@ -95,6 +103,26 @@ const AccessoryCard = ({ accessory }) => {
       .join(" ");
   };
 
+  // Determine button state
+  const isInCart = isItemInCart(accessory._id);
+  const isOutOfStock = !accessory.inStock;
+
+  let buttonLabel, buttonClass;
+
+  if (isOutOfStock) {
+    buttonLabel = "Out of Stock";
+    buttonClass =
+      "w-full py-2 px-4 rounded-lg font-medium bg-gray-300 text-gray-500 cursor-not-allowed";
+  } else if (isInCart) {
+    buttonLabel = "✓ Added to Cart";
+    buttonClass =
+      "w-full py-2 px-4 rounded-lg font-medium bg-green-600 text-white cursor-default";
+  } else {
+    buttonLabel = "Add to Cart";
+    buttonClass =
+      "w-full py-2 px-4 rounded-lg font-medium bg-purple-600 text-white hover:bg-purple-700 transition-colors";
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
       {/* Image Container */}
@@ -104,6 +132,10 @@ const AccessoryCard = ({ accessory }) => {
             src={primaryImage.url}
             alt={accessory.name}
             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+            onError={(e) => {
+              e.target.src =
+                "https://via.placeholder.com/300x300?text=No+Image";
+            }}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -206,7 +238,7 @@ const AccessoryCard = ({ accessory }) => {
               <div className="flex text-yellow-400">
                 {[...Array(5)].map((_, i) => (
                   <svg
-                    key={i}
+                    key={`${accessory._id}-star-${i}`}
                     className={`w-4 h-4 ${
                       i < Math.floor(accessory.rating.average)
                         ? "fill-current"
@@ -226,37 +258,29 @@ const AccessoryCard = ({ accessory }) => {
         </div>
 
         {/* Compatibility */}
-        {accessory.specifications?.compatibility &&
-          accessory.specifications.compatibility.length > 0 && (
-            <div className="text-xs text-gray-600 mb-3">
-              <p className="font-medium mb-1">Compatible with:</p>
-              <p className="truncate">
-                {accessory.specifications.compatibility.slice(0, 2).join(", ")}
-              </p>
-            </div>
-          )}
+        {accessory.specifications?.compatibility && (
+          <div className="mb-3">
+            <span className="inline-block bg-blue-100 text-blue-800 rounded px-2 py-1 text-xs">
+              Compatible: {accessory.specifications.compatibility}
+            </span>
+          </div>
+        )}
 
         {/* Add to Cart Button */}
         <button
           onClick={handleAddToCart}
-          disabled={!accessory.inStock}
-          className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
-            accessory.inStock
-              ? isItemInCart(accessory._id)
-                ? "bg-green-600 text-white"
-                : "bg-purple-600 text-white hover:bg-purple-700"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
+          disabled={isOutOfStock || isInCart}
+          className={buttonClass}
         >
-          {!accessory.inStock
-            ? "Out of Stock"
-            : isItemInCart(accessory._id)
-            ? "Added to Cart"
-            : "Add to Cart"}
+          {buttonLabel}
         </button>
       </div>
     </div>
   );
+};
+
+AccessoryCard.propTypes = {
+  accessory: PropTypes.object.isRequired,
 };
 
 export default AccessoryCard;
