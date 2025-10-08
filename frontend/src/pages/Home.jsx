@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Hero from "../components/Hero";
+import AccessoryVideo from "../components/AccessoryVideo";
 import PhoneCard from "../components/PhoneCard";
 import AccessoryCard from "../components/AccessoryCard";
 import { getFeaturedPhones, getFeaturedAccessories } from "../utils/api";
@@ -9,14 +10,13 @@ const Home = () => {
   const [featuredPhones, setFeaturedPhones] = useState([]);
   const [featuredAccessories, setFeaturedAccessories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   // Phones carousel state
   const trackRef = useRef(null);
   const [cardWidth, setCardWidth] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Accessories carousel state (new)
+  // Accessories carousel state
   const accTrackRef = useRef(null);
   const [accCardWidth, setAccCardWidth] = useState(0);
   const [accIndex, setAccIndex] = useState(0);
@@ -34,7 +34,6 @@ const Home = () => {
         setFeaturedAccessories(accessoriesResponse.data || []);
       } catch (error) {
         console.error("Error fetching featured products:", error);
-        setError("Failed to load featured products");
       } finally {
         setLoading(false);
       }
@@ -89,7 +88,7 @@ const Home = () => {
   const accessories = featuredAccessories || [];
   const maxVisible = 4;
 
-  // --- Phones handlers (existing) ---
+  // --- Phones handlers ---
   const displayPhones = phones.slice(0, Math.max(phones.length, 1));
 
   const handlePrev = () => {
@@ -117,7 +116,7 @@ const Home = () => {
     });
   };
 
-  // --- Accessories handlers (new, mirrors phones) ---
+  // --- Accessories handlers ---
   const displayAccessories = accessories.slice(
     0,
     Math.max(accessories.length, 1)
@@ -235,7 +234,10 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Premium Accessories - now white carousel like phones */}
+      {/* Accessory Video Section */}
+      <AccessoryVideo />
+
+      {/* Premium Accessories - white carousel */}
       <section className="py-16 bg-white text-black relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
