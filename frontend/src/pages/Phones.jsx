@@ -70,19 +70,9 @@ const Phones = () => {
               placeholder="Search phones..."
               value={filters.search}
               onChange={(e) => handleFilterChange({ search: e.target.value })}
-              className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="md:col-span-2 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
-            <select
-              value={filters.brand}
-              onChange={(e) => handleFilterChange({ brand: e.target.value })}
-              className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">All Brands</option>
-              <option value="Apple">Apple</option>
-              <option value="Samsung">Samsung</option>
-              <option value="Google">Google</option>
-              <option value="OnePlus">OnePlus</option>
-            </select>
+
             <select
               value={filters.sortBy}
               onChange={(e) => handleFilterChange({ sortBy: e.target.value })}
@@ -93,6 +83,7 @@ const Phones = () => {
               <option value="name">Name: A to Z</option>
               <option value="rating.average">Highest Rated</option>
             </select>
+
             <select
               value={filters.sortOrder}
               onChange={(e) =>
