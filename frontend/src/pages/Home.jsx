@@ -117,6 +117,10 @@ const Home = () => {
   };
 
   // --- Accessories handlers ---
+<<<<<<< Updated upstream
+=======
+  // --- Accessories handlers (new, mirrors phones) ---
+>>>>>>> Stashed changes
   const displayAccessories = accessories.slice(
     0,
     Math.max(accessories.length, 1)
@@ -168,46 +172,48 @@ const Home = () => {
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handlePrev}
-                aria-label="Previous phones"
-                className="w-10 h-10 rounded-md bg-black text-yellow-400 hover:bg-gray-900 flex items-center justify-center shadow"
-              >
-                <svg
-                  className="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
+            {featuredPhones.length > 0 && (
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handlePrev}
+                  aria-label="Previous phones"
+                  className="w-10 h-10 rounded-md bg-black text-yellow-400 hover:bg-gray-900 flex items-center justify-center shadow"
                 >
-                  <path
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-              <button
-                onClick={handleNext}
-                aria-label="Next phones"
-                className="w-10 h-10 rounded-md bg-black text-yellow-400 hover:bg-gray-900 flex items-center justify-center shadow"
-              >
-                <svg
-                  className="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
+                  <svg
+                    className="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                </button>
+                <button
+                  onClick={handleNext}
+                  aria-label="Next phones"
+                  className="w-10 h-10 rounded-md bg-black text-yellow-400 hover:bg-gray-900 flex items-center justify-center shadow"
                 >
-                  <path
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-            </div>
+                  <svg
+                    className="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Phones Carousel track */}
@@ -250,46 +256,48 @@ const Home = () => {
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handlePrevAcc}
-                aria-label="Previous accessories"
-                className="w-10 h-10 rounded-md bg-black text-yellow-400 hover:bg-gray-900 flex items-center justify-center shadow"
-              >
-                <svg
-                  className="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
+            {featuredAccessories.length > 0 && (
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handlePrevAcc}
+                  aria-label="Previous accessories"
+                  className="w-10 h-10 rounded-md bg-black text-yellow-400 hover:bg-gray-900 flex items-center justify-center shadow"
                 >
-                  <path
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-              <button
-                onClick={handleNextAcc}
-                aria-label="Next accessories"
-                className="w-10 h-10 rounded-md bg-black text-yellow-400 hover:bg-gray-900 flex items-center justify-center shadow"
-              >
-                <svg
-                  className="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
+                  <svg
+                    className="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                </button>
+                <button
+                  onClick={handleNextAcc}
+                  aria-label="Next accessories"
+                  className="w-10 h-10 rounded-md bg-black text-yellow-400 hover:bg-gray-900 flex items-center justify-center shadow"
                 >
-                  <path
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-            </div>
+                  <svg
+                    className="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Accessories Carousel track */}
