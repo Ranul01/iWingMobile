@@ -9,9 +9,7 @@ const Navbar = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const isActiveRoute = (path) => {
-    return location.pathname === path;
-  };
+  const isActiveRoute = (path) => location.pathname === path;
 
   const navLinks = [
     { path: "/", label: "Home" },
@@ -21,43 +19,52 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="bg-white shadow-lg sticky top-0 z-40">
+      <nav className="sticky top-0 z-40 bg-black/90 backdrop-blur-md border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2 flex-shrink-0">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">iW</span>
+            <Link
+              to="/"
+              className="flex items-center space-x-2 flex-shrink-0 group"
+            >
+              <div className="w-9 h-9 bg-yellow-400 rounded-lg flex items-center justify-center shadow-md shadow-yellow-400/20 transition-transform group-hover:scale-105">
+                <span className="text-black font-extrabold text-lg">iW</span>
               </div>
-              <span className="text-xl font-bold text-gray-900">
+              <span className="text-xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
                 iWingMobile
               </span>
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8 md:flex-1 justify-center min-w-0 overflow-x-auto">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActiveRoute(link.path)
-                      ? "text-blue-600 bg-blue-50"
-                      : "text-gray-700 hover:text-blue-600 hover:bg-gray-100"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
+            <div className="hidden md:flex items-center space-x-6 md:flex-1 justify-center">
+              {navLinks.map((link) => {
+                const active = isActiveRoute(link.path);
+                return (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className={`relative px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      active
+                        ? "text-yellow-400"
+                        : "text-gray-300 hover:text-yellow-400 hover:bg-yellow-400/10"
+                    }`}
+                  >
+                    {link.label}
+                    {active && (
+                      <span className="absolute left-1/2 -bottom-1 h-[2px] w-6 -translate-x-1/2 bg-yellow-400 rounded-full"></span>
+                    )}
+                  </Link>
+                );
+              })}
             </div>
 
-            {/* Cart and Mobile Menu Button */}
+            {/* Cart + Mobile Menu */}
             <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
               {/* Cart Button */}
               <div className="flex-shrink-0">
                 <button
                   onClick={() => setIsCartOpen(true)}
-                  className="relative p-2 text-gray-700 hover:text-blue-600 transition-colors hover:bg-gray-100 rounded-md w-10 h-10 flex items-center justify-center"
+                  className="relative p-2 text-gray-300 hover:text-yellow-400 transition-colors hover:bg-yellow-400/10 rounded-md w-10 h-10 flex items-center justify-center"
                   aria-label="Open cart"
                 >
                   <svg
@@ -74,7 +81,7 @@ const Navbar = () => {
                     />
                   </svg>
                   {itemCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                    <span className="absolute -top-1 -right-1 bg-yellow-400 text-black text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                       {itemCount}
                     </span>
                   )}
@@ -85,7 +92,7 @@ const Navbar = () => {
               <div className="flex-shrink-0 md:hidden">
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="p-2 text-gray-700 hover:text-blue-600 transition-colors hover:bg-gray-100 rounded-md w-10 h-10 flex items-center justify-center"
+                  className="p-2 text-gray-300 hover:text-yellow-400 transition-colors hover:bg-yellow-400/10 rounded-md w-10 h-10 flex items-center justify-center"
                   aria-label="Toggle menu"
                 >
                   <svg
@@ -117,22 +124,25 @@ const Navbar = () => {
 
           {/* Mobile Navigation Menu */}
           {isMobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-gray-200">
+            <div className="md:hidden py-4 border-t border-gray-800 bg-black/95">
               <div className="flex flex-col space-y-2">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.path}
-                    to={link.path}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                      isActiveRoute(link.path)
-                        ? "text-blue-600 bg-blue-50"
-                        : "text-gray-700 hover:text-blue-600 hover:bg-gray-100"
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+                {navLinks.map((link) => {
+                  const active = isActiveRoute(link.path);
+                  return (
+                    <Link
+                      key={link.path}
+                      to={link.path}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                        active
+                          ? "text-yellow-400 bg-yellow-400/10"
+                          : "text-gray-300 hover:text-yellow-400 hover:bg-yellow-400/10"
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}
