@@ -8,6 +8,8 @@ import {
   where,
   orderBy,
   limit,
+  addDoc,
+  updateDoc,
 } from "firebase/firestore";
 
 // Fetch all phones with filters
@@ -171,6 +173,27 @@ export const getAccessories = async (filters = {}) => {
   }
 };
 
+// Fetch single accessory by ID
+export const getAccessoryById = async (id) => {
+  try {
+    const accessoryDoc = await getDoc(doc(db, "accessories", id));
+    if (accessoryDoc.exists()) {
+      return {
+        id: accessoryDoc.id,
+        _id: accessoryDoc.id,
+        ...accessoryDoc.data(),
+        createdAt:
+          accessoryDoc.data().createdAt?.toDate?.()?.toISOString() ||
+          new Date().toISOString(),
+      };
+    }
+    throw new Error("Accessory not found");
+  } catch (error) {
+    console.error("Error fetching accessory:", error);
+    throw error;
+  }
+};
+
 // Fetch featured accessories - SIMPLIFIED to avoid index
 export const getFeaturedAccessories = async (limitCount = 8) => {
   try {
@@ -234,5 +257,202 @@ export const getAccessoryCategories = async () => {
   } catch (error) {
     console.error("Error fetching accessory categories:", error);
     return [];
+  }
+};
+
+// Reviews API functions - SIMPLIFIED to avoid composite index requirement
+export const getReviewsForPhone = async (phoneId) => {
+  try {
+    const reviewsRef = collection(db, "reviews");
+    // Simplified query - only filter by phoneId first
+    const q = query(reviewsRef, where("phoneId", "==", phoneId));
+
+    const snapshot = await getDocs(q);
+    const reviews = snapshot.docs
+      .map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt:
+          doc.data().createdAt?.toDate?.()?.toISOString() ||
+          new Date().toISOString(),
+      }))
+      // Filter approved reviews in memory and sort by date
+      .filter((review) => review.status === "approved")
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    return reviews;
+  } catch (error) {
+    console.error("Error fetching reviews:", error);
+    return [];
+  }
+};
+
+export const submitReview = async (reviewData) => {
+  try {
+    const reviewsRef = collection(db, "reviews");
+    const newReview = {
+      ...reviewData,
+      status: "pending", // Admin needs to approve
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const docRef = await addDoc(reviewsRef, newReview);
+    return { id: docRef.id, ...newReview };
+  } catch (error) {
+    console.error("Error submitting review:", error);
+    throw error;
+  }
+};
+
+// Check if user has already reviewed this phone - SIMPLIFIED
+export const hasUserReviewed = async (phoneId, userEmail) => {
+  try {
+    const reviewsRef = collection(db, "reviews");
+    // Simple query with just phoneId
+    const q = query(reviewsRef, where("phoneId", "==", phoneId));
+
+    const snapshot = await getDocs(q);
+    // Check in memory if user has reviewed
+    const userReview = snapshot.docs.find(
+      (doc) => doc.data().userEmail === userEmail
+    );
+
+    return !!userReview;
+  } catch (error) {
+    console.error("Error checking user review:", error);
+    return false;
+  }
+};
+
+// Alternative: Get all reviews for admin approval (for your admin panel)
+export const getAllPendingReviews = async () => {
+  try {
+    const reviewsRef = collection(db, "reviews");
+    const q = query(reviewsRef);
+
+    const snapshot = await getDocs(q);
+    const reviews = snapshot.docs
+      .map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt:
+          doc.data().createdAt?.toDate?.()?.toISOString() ||
+          new Date().toISOString(),
+      }))
+      // Filter pending reviews in memory
+      .filter((review) => review.status === "pending")
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    return reviews;
+  } catch (error) {
+    console.error("Error fetching pending reviews:", error);
+    return [];
+  }
+};
+
+// Get all approved reviews (for admin panel to see approved ones)
+export const getAllApprovedReviews = async () => {
+  try {
+    const reviewsRef = collection(db, "reviews");
+    const q = query(reviewsRef);
+
+    const snapshot = await getDocs(q);
+    const reviews = snapshot.docs
+      .map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt:
+          doc.data().createdAt?.toDate?.()?.toISOString() ||
+          new Date().toISOString(),
+      }))
+      // Filter approved reviews in memory
+      .filter((review) => review.status === "approved")
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    return reviews;
+  } catch (error) {
+    console.error("Error fetching approved reviews:", error);
+    return [];
+  }
+};
+
+// Update review status (for admin approval/rejection)
+export const updateReviewStatus = async (reviewId, status) => {
+  try {
+    const reviewRef = doc(db, "reviews", reviewId);
+    await updateDoc(reviewRef, {
+      status: status, // "approved" or "rejected"
+      updatedAt: new Date(),
+    });
+    return true;
+  } catch (error) {
+    console.error("Error updating review status:", error);
+    throw error;
+  }
+};
+
+// Reviews API functions for Accessories
+export const getReviewsForAccessory = async (accessoryId) => {
+  try {
+    const reviewsRef = collection(db, "reviews");
+    // Simplified query - only filter by accessoryId first
+    const q = query(reviewsRef, where("accessoryId", "==", accessoryId));
+
+    const snapshot = await getDocs(q);
+    const reviews = snapshot.docs
+      .map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt:
+          doc.data().createdAt?.toDate?.()?.toISOString() ||
+          new Date().toISOString(),
+      }))
+      // Filter approved reviews in memory and sort by date
+      .filter((review) => review.status === "approved")
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    return reviews;
+  } catch (error) {
+    console.error("Error fetching accessory reviews:", error);
+    return [];
+  }
+};
+
+export const submitAccessoryReview = async (reviewData) => {
+  try {
+    const reviewsRef = collection(db, "reviews");
+    const newReview = {
+      ...reviewData,
+      status: "pending", // Admin needs to approve
+      type: "accessory", // To distinguish from phone reviews
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const docRef = await addDoc(reviewsRef, newReview);
+    return { id: docRef.id, ...newReview };
+  } catch (error) {
+    console.error("Error submitting accessory review:", error);
+    throw error;
+  }
+};
+
+// Check if user has already reviewed this accessory
+export const hasUserReviewedAccessory = async (accessoryId, userEmail) => {
+  try {
+    const reviewsRef = collection(db, "reviews");
+    const q = query(reviewsRef, where("accessoryId", "==", accessoryId));
+
+    const snapshot = await getDocs(q);
+    // Check in memory if user has reviewed
+    const userReview = snapshot.docs.find(
+      (doc) => doc.data().userEmail === userEmail
+    );
+
+    return !!userReview;
+  } catch (error) {
+    console.error("Error checking user accessory review:", error);
+    return false;
   }
 };

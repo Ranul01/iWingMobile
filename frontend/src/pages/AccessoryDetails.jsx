@@ -5,10 +5,10 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useCart } from "../context/CartContex";
 import {
-  getPhoneById,
-  getReviewsForPhone,
-  submitReview,
-  hasUserReviewed,
+  getAccessoryById,
+  getReviewsForAccessory,
+  submitAccessoryReview,
+  hasUserReviewedAccessory,
 } from "../utils/firebaseApi";
 import Navbar from "../components/Navbar";
 import ReviewForm from "../components/ReviewForm";
@@ -16,12 +16,12 @@ import ReviewsList from "../components/ReviewsList";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const PhoneDetails = () => {
+const AccessoryDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addItem, isItemInCart } = useCart();
 
-  const [phone, setPhone] = useState(null);
+  const [accessory, setAccessory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState("");
@@ -40,10 +40,10 @@ const PhoneDetails = () => {
   const contentRef = useRef(null);
   const specsRef = useRef(null);
 
-  const fetchReviews = useCallback(async (phoneId) => {
+  const fetchReviews = useCallback(async (accessoryId) => {
     setReviewsLoading(true);
     try {
-      const reviewsData = await getReviewsForPhone(phoneId);
+      const reviewsData = await getReviewsForAccessory(accessoryId);
       setReviews(reviewsData);
     } catch (error) {
       console.error("Error fetching reviews:", error);
@@ -52,21 +52,21 @@ const PhoneDetails = () => {
     }
   }, []);
 
-  const fetchPhoneDetails = useCallback(
-    async (phoneId) => {
+  const fetchAccessoryDetails = useCallback(
+    async (accessoryId) => {
       try {
-        const phoneData = await getPhoneById(phoneId);
-        setPhone(phoneData);
+        const accessoryData = await getAccessoryById(accessoryId);
+        setAccessory(accessoryData);
 
-        if (phoneData.colors?.length > 0) {
-          setSelectedColor(phoneData.colors[0]);
+        if (accessoryData.colors?.length > 0) {
+          setSelectedColor(accessoryData.colors[0]);
         }
 
         // Fetch reviews
-        await fetchReviews(phoneId);
+        await fetchReviews(accessoryId);
       } catch (error) {
-        console.error("Error fetching phone details:", error);
-        setPhone(null);
+        console.error("Error fetching accessory details:", error);
+        setAccessory(null);
       } finally {
         setLoading(false);
       }
@@ -76,10 +76,24 @@ const PhoneDetails = () => {
 
   const handleSubmitReview = async (reviewData) => {
     try {
-      await submitReview(reviewData);
+      // Add accessoryId instead of phoneId
+      const accessoryReviewData = {
+        ...reviewData,
+        accessoryId: id,
+        accessoryName: accessory.name,
+      };
+
+      // Remove phoneId and phoneName if they exist
+      delete accessoryReviewData.phoneId;
+      delete accessoryReviewData.phoneName;
+
+      await submitAccessoryReview(accessoryReviewData);
 
       // Check if user has reviewed after submission
-      const hasReviewed = await hasUserReviewed(id, reviewData.userEmail);
+      const hasReviewed = await hasUserReviewedAccessory(
+        id,
+        reviewData.userEmail
+      );
       setUserHasReviewed(hasReviewed);
 
       // Refresh reviews (though new review won't show until approved)
@@ -97,11 +111,11 @@ const PhoneDetails = () => {
   };
 
   useEffect(() => {
-    fetchPhoneDetails(id);
-  }, [id, fetchPhoneDetails]);
+    fetchAccessoryDetails(id);
+  }, [id, fetchAccessoryDetails]);
 
   useEffect(() => {
-    if (!loading && phone) {
+    if (!loading && accessory) {
       const ctx = gsap.context(() => {
         // Animate container entrance
         gsap.fromTo(
@@ -147,7 +161,7 @@ const PhoneDetails = () => {
 
       return () => ctx.revert();
     }
-  }, [loading, phone]);
+  }, [loading, accessory]);
 
   // Calculate average rating from reviews
   const averageRating =
@@ -180,21 +194,32 @@ const PhoneDetails = () => {
     }
   };
 
+  const formatCategory = (category) => {
+    if (!category) return "";
+    return category
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   const handleAddToCart = () => {
-    if (!phone.inStock || isItemInCart(phone.id)) return;
+    if (!accessory.inStock || isItemInCart(accessory.id)) return;
 
     const cartItem = {
-      id: phone.id,
-      name: phone.name,
-      brand: phone.brand,
-      price: phone.price,
-      originalPrice: phone.originalPrice,
-      image: phone.images?.[selectedImage]?.url || phone.images?.[0]?.url,
-      images: phone.images,
-      condition: phone.condition,
+      id: accessory.id,
+      name: accessory.name,
+      brand: accessory.brand,
+      price: accessory.price,
+      originalPrice: accessory.originalPrice,
+      image:
+        accessory.images?.[selectedImage]?.url || accessory.images?.[0]?.url,
+      images: accessory.images,
+      condition: accessory.condition,
       selectedColor,
       quantity,
-      inStock: phone.inStock,
+      inStock: accessory.inStock,
+      category: accessory.category,
+      type: "accessory",
     };
 
     addItem(cartItem);
@@ -210,18 +235,18 @@ const PhoneDetails = () => {
     );
   }
 
-  if (!phone) {
+  if (!accessory) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-black via-neutral-950 to-neutral-900 text-white">
         <Navbar />
         <div className="flex items-center justify-center min-h-[80vh]">
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Phone not found</h2>
+            <h2 className="text-2xl font-bold mb-4">Accessory not found</h2>
             <button
-              onClick={() => navigate("/phones")}
+              onClick={() => navigate("/accessories")}
               className="bg-yellow-400 text-black px-6 py-2 rounded-lg font-semibold hover:bg-yellow-500 transition-colors"
             >
-              Back to Phones
+              Back to Accessories
             </button>
           </div>
         </div>
@@ -229,17 +254,19 @@ const PhoneDetails = () => {
     );
   }
 
-  const discount = phone.originalPrice
+  const discount = accessory.originalPrice
     ? Math.round(
-        ((phone.originalPrice - phone.price) / phone.originalPrice) * 100
+        ((accessory.originalPrice - accessory.price) /
+          accessory.originalPrice) *
+          100
       )
     : 0;
 
-  const isInCart = isItemInCart(phone.id);
+  const isInCart = isItemInCart(accessory.id);
 
   // Extracted button label logic
   let addToCartLabel = "Add to Cart";
-  if (!phone.inStock) {
+  if (!accessory.inStock) {
     addToCartLabel = "Out of Stock";
   } else if (isInCart) {
     addToCartLabel = "Added to Cart";
@@ -256,11 +283,11 @@ const PhoneDetails = () => {
       >
         {/* Back Button */}
         <button
-          onClick={() => navigate("/phones")}
+          onClick={() => navigate("/accessories")}
           className="group flex items-center gap-2 mb-8 text-yellow-400 hover:text-yellow-300 transition-colors"
         >
           <FaArrowLeft className="group-hover:-translate-x-1 transition-transform" />
-          <span>Back to Phones</span>
+          <span>Back to Accessories</span>
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
@@ -270,12 +297,13 @@ const PhoneDetails = () => {
             <div className="relative bg-neutral-900/50 rounded-2xl overflow-hidden border border-neutral-800">
               <img
                 src={
-                  phone.images?.[selectedImage]?.url || phone.images?.[0]?.url
+                  accessory.images?.[selectedImage]?.url ||
+                  accessory.images?.[0]?.url
                 }
-                alt={phone.images?.[selectedImage]?.alt || phone.name}
+                alt={accessory.images?.[selectedImage]?.alt || accessory.name}
                 className="w-full h-96 lg:h-[500px] object-cover"
                 onError={(e) => {
-                  e.target.src = "/placeholder-phone.jpg";
+                  e.target.src = "/placeholder-accessory.jpg";
                 }}
               />
 
@@ -285,7 +313,7 @@ const PhoneDetails = () => {
                   -{discount}%
                 </span>
               )}
-              {phone.featured && (
+              {accessory.featured && (
                 <span className="absolute top-4 left-4 bg-yellow-400 text-black px-3 py-1 rounded-lg text-sm font-bold">
                   Featured
                 </span>
@@ -293,9 +321,9 @@ const PhoneDetails = () => {
             </div>
 
             {/* Thumbnail Gallery */}
-            {phone.images && phone.images.length > 1 && (
+            {accessory.images && accessory.images.length > 1 && (
               <div className="grid grid-cols-4 gap-3">
-                {phone.images.map((image, index) => (
+                {accessory.images.map((image, index) => (
                   <button
                     key={image.url}
                     onClick={() => setSelectedImage(index)}
@@ -307,10 +335,10 @@ const PhoneDetails = () => {
                   >
                     <img
                       src={image.url}
-                      alt={image.alt || `${phone.name} ${index + 1}`}
+                      alt={image.alt || `${accessory.name} ${index + 1}`}
                       className="w-full h-20 object-cover"
                       onError={(e) => {
-                        e.target.src = "/placeholder-phone.jpg";
+                        e.target.src = "/placeholder-accessory.jpg";
                       }}
                     />
                   </button>
@@ -325,20 +353,25 @@ const PhoneDetails = () => {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-yellow-400 text-sm font-medium">
-                  {phone.brand}
+                  {formatCategory(accessory.category)}
                 </span>
-                {phone.condition && (
+                {accessory.brand && (
+                  <span className="text-gray-400 text-sm font-medium">
+                    {accessory.brand}
+                  </span>
+                )}
+                {accessory.condition && (
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium border ${getConditionBadgeColor(
-                      phone.condition
+                      accessory.condition
                     )}`}
                   >
-                    {formatCondition(phone.condition)}
+                    {formatCondition(accessory.condition)}
                   </span>
                 )}
               </div>
               <h1 className="text-3xl lg:text-4xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                {phone.name}
+                {accessory.name}
               </h1>
 
               {/* Rating */}
@@ -347,7 +380,7 @@ const PhoneDetails = () => {
                   <div className="flex items-center text-yellow-400">
                     {[...Array(5)].map((_, i) => (
                       <FaStar
-                        key={`star-${i}-${phone.id}`}
+                        key={`star-${i}-${accessory.id}`}
                         className={
                           i < Math.floor(averageRating)
                             ? "text-yellow-400"
@@ -369,39 +402,40 @@ const PhoneDetails = () => {
             {/* Price */}
             <div className="flex items-center gap-4">
               <span className="text-3xl lg:text-4xl font-bold text-yellow-400">
-                ${phone.price}
+                ${accessory.price}
               </span>
-              {phone.originalPrice && phone.originalPrice > phone.price && (
-                <span className="text-xl text-gray-500 line-through">
-                  ${phone.originalPrice}
-                </span>
-              )}
+              {accessory.originalPrice &&
+                accessory.originalPrice > accessory.price && (
+                  <span className="text-xl text-gray-500 line-through">
+                    ${accessory.originalPrice}
+                  </span>
+                )}
             </div>
 
             {/* Stock Status */}
             <div className="flex items-center gap-3">
               <span
                 className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  phone.inStock
+                  accessory.inStock
                     ? "bg-green-100 text-green-800"
                     : "bg-red-100 text-red-800"
                 }`}
               >
-                {phone.inStock ? "In Stock" : "Out of Stock"}
+                {accessory.inStock ? "In Stock" : "Out of Stock"}
               </span>
-              {phone.stockQuantity && phone.inStock && (
+              {accessory.stockQuantity && accessory.inStock && (
                 <span className="text-gray-400 text-sm">
-                  {phone.stockQuantity} units available
+                  {accessory.stockQuantity} units available
                 </span>
               )}
             </div>
 
             {/* Color Selection */}
-            {phone.colors && phone.colors.length > 0 && (
+            {accessory.colors && accessory.colors.length > 0 && (
               <div>
                 <h3 className="text-lg font-semibold mb-3">Color</h3>
                 <div className="flex flex-wrap gap-2">
-                  {phone.colors.map((color) => (
+                  {accessory.colors.map((color) => (
                     <button
                       key={color}
                       onClick={() => setSelectedColor(color)}
@@ -419,11 +453,11 @@ const PhoneDetails = () => {
             )}
 
             {/* Key Features */}
-            {phone.features && phone.features.length > 0 && (
+            {accessory.features && accessory.features.length > 0 && (
               <div>
                 <h3 className="text-lg font-semibold mb-3">Key Features</h3>
                 <div className="flex flex-wrap gap-2">
-                  {phone.features.map((feature) => (
+                  {accessory.features.map((feature) => (
                     <span
                       key={feature}
                       className="px-3 py-1 bg-neutral-800 rounded-full text-sm text-gray-300"
@@ -449,9 +483,9 @@ const PhoneDetails = () => {
                   value={quantity}
                   onChange={(e) => setQuantity(Number(e.target.value))}
                   className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white"
-                  disabled={!phone.inStock}
+                  disabled={!accessory.inStock}
                 >
-                  {[...Array(Math.min(phone.stockQuantity || 10, 10))].map(
+                  {[...Array(Math.min(accessory.stockQuantity || 10, 10))].map(
                     (_, i) => (
                       <option key={i + 1} value={i + 1}>
                         {i + 1}
@@ -463,9 +497,9 @@ const PhoneDetails = () => {
 
               <button
                 onClick={handleAddToCart}
-                disabled={!phone.inStock || isInCart}
+                disabled={!accessory.inStock || isInCart}
                 className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors ${
-                  !phone.inStock || isInCart
+                  !accessory.inStock || isInCart
                     ? "bg-neutral-800 text-gray-500 cursor-not-allowed"
                     : "bg-yellow-400 text-black hover:bg-yellow-500"
                 }`}
@@ -511,14 +545,14 @@ const PhoneDetails = () => {
             {activeTab === "description" && (
               <div className="prose prose-invert max-w-none">
                 <p className="text-gray-300 leading-relaxed">
-                  {phone.description}
+                  {accessory.description}
                 </p>
               </div>
             )}
 
-            {activeTab === "specifications" && phone.specifications && (
+            {activeTab === "specifications" && accessory.specifications && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {Object.entries(phone.specifications).map(
+                {Object.entries(accessory.specifications).map(
                   ([category, specs]) => (
                     <div key={category}>
                       <h3 className="text-lg font-semibold text-yellow-400 mb-4 capitalize">
@@ -574,8 +608,8 @@ const PhoneDetails = () => {
                 {/* Review Form */}
                 {showReviewForm && (
                   <ReviewForm
-                    phoneId={phone.id}
-                    phoneName={phone.name}
+                    phoneId={accessory.id} // Using phoneId prop for compatibility
+                    phoneName={accessory.name} // Using phoneName prop for compatibility
                     onSubmitReview={handleSubmitReview}
                     onCancel={() => setShowReviewForm(false)}
                   />
@@ -598,4 +632,4 @@ const PhoneDetails = () => {
   );
 };
 
-export default PhoneDetails;
+export default AccessoryDetails;

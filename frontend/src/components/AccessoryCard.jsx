@@ -1,8 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContex";
 
 const AccessoryCard = ({ accessory }) => {
+  const navigate = useNavigate();
   const { addItem, isItemInCart } = useCart();
 
   const formatPrice = (price) => {
@@ -12,7 +14,15 @@ const AccessoryCard = ({ accessory }) => {
     }).format(price);
   };
 
-  const handleAddToCart = () => {
+  const handleCardClick = () => {
+    // Navigate to accessory details page
+    navigate(`/accessories/${accessory._id || accessory.id}`);
+  };
+
+  const handleAddToCart = (e) => {
+    // Prevent card click when clicking the button
+    e.stopPropagation();
+
     // Don't add if already in cart or out of stock
     if (!accessory.inStock || isItemInCart(accessory._id)) {
       return;
@@ -124,7 +134,18 @@ const AccessoryCard = ({ accessory }) => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+    <div
+      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden cursor-pointer text-left w-full"
+      onClick={handleCardClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleCardClick();
+        }
+      }}
+      role="button"
+      tabIndex={0}
+    >
       {/* Image Container */}
       <div className="relative aspect-square bg-gray-100 overflow-hidden">
         {primaryImage ? (
@@ -150,14 +171,13 @@ const AccessoryCard = ({ accessory }) => {
           </div>
         )}
 
-        {/* Badge for featured items */}
+        {/* Badges */}
         {accessory.featured && (
           <div className="absolute top-2 left-2 bg-purple-500 text-white px-2 py-1 rounded text-xs font-semibold">
             Featured
           </div>
         )}
 
-        {/* Discount badge */}
         {accessory.originalPrice &&
           accessory.originalPrice > accessory.price && (
             <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-semibold">
