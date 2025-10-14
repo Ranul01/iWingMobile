@@ -1,0 +1,500 @@
+import React, { useState, useEffect, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { FaStar, FaShoppingCart, FaArrowLeft, FaHeart } from "react-icons/fa";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useCart } from "../context/CartContex";
+import { getPhoneById } from "../utils/firebaseApi";
+import Navbar from "../components/Navbar";
+
+gsap.registerPlugin(ScrollTrigger);
+
+const PhoneDetails = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { addItem, isItemInCart } = useCart();
+
+  const [phone, setPhone] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedColor, setSelectedColor] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [activeTab, setActiveTab] = useState("description");
+
+  // Refs for animations
+  const containerRef = useRef(null);
+  const imageRef = useRef(null);
+  const contentRef = useRef(null);
+  const specsRef = useRef(null);
+
+  const fetchPhoneDetails = async (phoneId) => {
+    try {
+      const phoneData = await getPhoneById(phoneId);
+      setPhone(phoneData);
+
+      if (phoneData.colors?.length > 0) {
+        setSelectedColor(phoneData.colors[0]);
+      }
+    } catch (error) {
+      console.error("Error fetching phone details:", error);
+      setPhone(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPhoneDetails(id);
+  }, [id]);
+
+  useEffect(() => {
+    if (!loading && phone) {
+      const ctx = gsap.context(() => {
+        // Animate container entrance
+        gsap.fromTo(
+          containerRef.current,
+          { opacity: 0, y: 50 },
+          { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }
+        );
+
+        // Animate image gallery
+        gsap.fromTo(
+          imageRef.current,
+          { opacity: 0, x: -50 },
+          { opacity: 1, x: 0, duration: 0.8, delay: 0.2, ease: "power2.out" }
+        );
+
+        // Animate content
+        gsap.fromTo(
+          contentRef.current,
+          { opacity: 0, x: 50 },
+          { opacity: 1, x: 0, duration: 0.8, delay: 0.3, ease: "power2.out" }
+        );
+
+        // Animate specifications
+        if (specsRef.current) {
+          gsap.fromTo(
+            specsRef.current,
+            { opacity: 0, y: 30 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              delay: 0.5,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: specsRef.current,
+                start: "top 80%",
+                toggleActions: "play none none reverse",
+              },
+            }
+          );
+        }
+      }, containerRef);
+
+      return () => ctx.revert();
+    }
+  }, [loading, phone]);
+
+  const formatCondition = (condition) => {
+    if (!condition) return "";
+    return condition
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
+  const getConditionBadgeColor = (condition) => {
+    switch (condition) {
+      case "brand-new":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "refurbished":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "used-excellent":
+        return "bg-emerald-100 text-emerald-800 border-emerald-200";
+      case "used-good":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "used-fair":
+        return "bg-orange-100 text-orange-800 border-orange-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const handleAddToCart = () => {
+    if (!phone.inStock || isItemInCart(phone.id)) return;
+
+    const cartItem = {
+      id: phone.id,
+      name: phone.name,
+      brand: phone.brand,
+      price: phone.price,
+      originalPrice: phone.originalPrice,
+      image: phone.images?.[selectedImage]?.url || phone.images?.[0]?.url,
+      images: phone.images,
+      condition: phone.condition,
+      selectedColor,
+      quantity,
+      inStock: phone.inStock,
+    };
+
+    addItem(cartItem);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black via-neutral-950 to-neutral-900 text-white">
+        <div className="flex items-center justify-center min-h-[80vh]">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-yellow-400"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!phone) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black via-neutral-950 to-neutral-900 text-white">
+        <Navbar />
+        <div className="flex items-center justify-center min-h-[80vh]">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Phone not found</h2>
+            <button
+              onClick={() => navigate("/phones")}
+              className="bg-yellow-400 text-black px-6 py-2 rounded-lg font-semibold hover:bg-yellow-500 transition-colors"
+            >
+              Back to Phones
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const discount = phone.originalPrice
+    ? Math.round(
+        ((phone.originalPrice - phone.price) / phone.originalPrice) * 100
+      )
+    : 0;
+
+  const isInCart = isItemInCart(phone.id);
+
+  // Extracted button label logic
+  let addToCartLabel = "Add to Cart";
+  if (!phone.inStock) {
+    addToCartLabel = "Out of Stock";
+  } else if (isInCart) {
+    addToCartLabel = "Added to Cart";
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-black via-neutral-950 to-neutral-900 text-white">
+      {/* Background Effects */}
+      <div className="pointer-events-none absolute inset-0 opacity-30 [background:radial-gradient(circle_at_25%_15%,rgba(234,179,8,0.14),transparent_60%)]" />
+
+      <div
+        ref={containerRef}
+        className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10"
+      >
+        {/* Back Button */}
+        <button
+          onClick={() => navigate("/phones")}
+          className="group flex items-center gap-2 mb-8 text-yellow-400 hover:text-yellow-300 transition-colors"
+        >
+          <FaArrowLeft className="group-hover:-translate-x-1 transition-transform" />
+          <span>Back to Phones</span>
+        </button>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+          {/* Image Gallery */}
+          <div ref={imageRef} className="space-y-4">
+            {/* Main Image */}
+            <div className="relative bg-neutral-900/50 rounded-2xl overflow-hidden border border-neutral-800">
+              <img
+                src={
+                  phone.images?.[selectedImage]?.url || phone.images?.[0]?.url
+                }
+                alt={phone.images?.[selectedImage]?.alt || phone.name}
+                className="w-full h-96 lg:h-[500px] object-cover"
+                onError={(e) => {
+                  e.target.src = "/placeholder-phone.jpg";
+                }}
+              />
+
+              {/* Badges on Image */}
+              {discount > 0 && (
+                <span className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-lg text-sm font-bold">
+                  -{discount}%
+                </span>
+              )}
+              {phone.featured && (
+                <span className="absolute top-4 left-4 bg-yellow-400 text-black px-3 py-1 rounded-lg text-sm font-bold">
+                  Featured
+                </span>
+              )}
+            </div>
+
+            {/* Thumbnail Gallery */}
+            {phone.images && phone.images.length > 1 && (
+              <div className="grid grid-cols-4 gap-3">
+                {phone.images.map((image, index) => (
+                  <button
+                    key={image.url}
+                    onClick={() => setSelectedImage(index)}
+                    className={`relative bg-neutral-900/50 rounded-lg overflow-hidden border-2 transition-all ${
+                      selectedImage === index
+                        ? "border-yellow-400 shadow-lg shadow-yellow-400/20"
+                        : "border-neutral-700 hover:border-neutral-600"
+                    }`}
+                  >
+                    <img
+                      src={image.url}
+                      alt={image.alt || `${phone.name} ${index + 1}`}
+                      className="w-full h-20 object-cover"
+                      onError={(e) => {
+                        e.target.src = "/placeholder-phone.jpg";
+                      }}
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Product Details */}
+          <div ref={contentRef} className="space-y-6">
+            {/* Header */}
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-yellow-400 text-sm font-medium">
+                  {phone.brand}
+                </span>
+                {phone.condition && (
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium border ${getConditionBadgeColor(
+                      phone.condition
+                    )}`}
+                  >
+                    {formatCondition(phone.condition)}
+                  </span>
+                )}
+              </div>
+              <h1 className="text-3xl lg:text-4xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                {phone.name}
+              </h1>
+
+              {/* Rating */}
+              {phone.rating && (
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center text-yellow-400">
+                    {[...Array(5)].map((_, i) => (
+                      <FaStar
+                        key={`star-${i}-${phone.id}`}
+                        className={
+                          i < Math.floor(phone.rating.average)
+                            ? "text-yellow-400"
+                            : "text-gray-600"
+                        }
+                      />
+                    ))}
+                    <span className="ml-2 text-white">
+                      {phone.rating.average}
+                    </span>
+                  </div>
+                  <span className="text-gray-400">
+                    ({phone.rating.count} reviews)
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Price */}
+            <div className="flex items-center gap-4">
+              <span className="text-3xl lg:text-4xl font-bold text-yellow-400">
+                ${phone.price}
+              </span>
+              {phone.originalPrice && phone.originalPrice > phone.price && (
+                <span className="text-xl text-gray-500 line-through">
+                  ${phone.originalPrice}
+                </span>
+              )}
+            </div>
+
+            {/* Stock Status */}
+            <div className="flex items-center gap-3">
+              <span
+                className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  phone.inStock
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                }`}
+              >
+                {phone.inStock ? "In Stock" : "Out of Stock"}
+              </span>
+              {phone.stockQuantity && phone.inStock && (
+                <span className="text-gray-400 text-sm">
+                  {phone.stockQuantity} units available
+                </span>
+              )}
+            </div>
+
+            {/* Color Selection */}
+            {phone.colors && phone.colors.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Color</h3>
+                <div className="flex flex-wrap gap-2">
+                  {phone.colors.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setSelectedColor(color)}
+                      className={`px-4 py-2 rounded-lg border transition-all ${
+                        selectedColor === color
+                          ? "border-yellow-400 bg-yellow-400/10 text-yellow-400"
+                          : "border-neutral-700 text-gray-300 hover:border-neutral-600"
+                      }`}
+                    >
+                      {color}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Key Features */}
+            {phone.features && phone.features.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Key Features</h3>
+                <div className="flex flex-wrap gap-2">
+                  {phone.features.map((feature) => (
+                    <span
+                      key={feature}
+                      className="px-3 py-1 bg-neutral-800 rounded-full text-sm text-gray-300"
+                    >
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Quantity & Actions */}
+            <div className="flex items-center gap-4 pt-4">
+              <div className="flex items-center gap-2">
+                <label
+                  htmlFor="quantity-select"
+                  className="text-sm font-medium"
+                >
+                  Qty:
+                </label>
+                <select
+                  id="quantity-select"
+                  value={quantity}
+                  onChange={(e) => setQuantity(Number(e.target.value))}
+                  className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white"
+                  disabled={!phone.inStock}
+                >
+                  {[...Array(Math.min(phone.stockQuantity || 10, 10))].map(
+                    (_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {i + 1}
+                      </option>
+                    )
+                  )}
+                </select>
+              </div>
+
+              <button
+                onClick={handleAddToCart}
+                disabled={!phone.inStock || isInCart}
+                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors ${
+                  !phone.inStock || isInCart
+                    ? "bg-neutral-800 text-gray-500 cursor-not-allowed"
+                    : "bg-yellow-400 text-black hover:bg-yellow-500"
+                }`}
+              >
+                <FaShoppingCart />
+                {addToCartLabel}
+              </button>
+
+              <button className="p-3 border border-neutral-700 rounded-lg text-gray-400 hover:text-yellow-400 hover:border-yellow-400 transition-colors">
+                <FaHeart />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs Section */}
+        <div
+          ref={specsRef}
+          className="bg-neutral-900/50 rounded-2xl border border-neutral-800 overflow-hidden"
+        >
+          {/* Tab Headers */}
+          <div className="flex border-b border-neutral-800">
+            {["description", "specifications", "reviews"].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 py-4 px-6 text-center font-medium transition-colors ${
+                  activeTab === tab
+                    ? "text-yellow-400 border-b-2 border-yellow-400 bg-neutral-800/50"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab Content */}
+          <div className="p-6">
+            {activeTab === "description" && (
+              <div className="prose prose-invert max-w-none">
+                <p className="text-gray-300 leading-relaxed">
+                  {phone.description}
+                </p>
+              </div>
+            )}
+
+            {activeTab === "specifications" && phone.specifications && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {Object.entries(phone.specifications).map(
+                  ([category, specs]) => (
+                    <div key={category}>
+                      <h3 className="text-lg font-semibold text-yellow-400 mb-4 capitalize">
+                        {category}
+                      </h3>
+                      <div className="space-y-2">
+                        {Object.entries(specs).map(([key, value]) => (
+                          <div
+                            key={key}
+                            className="flex justify-between py-2 border-b border-neutral-800 last:border-b-0"
+                          >
+                            <span className="text-gray-400 capitalize">
+                              {key.replace(/([A-Z])/g, " $1").trim()}:
+                            </span>
+                            <span className="text-white font-medium">
+                              {value}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
+            )}
+
+            {activeTab === "reviews" && (
+              <div className="text-center py-8">
+                <p className="text-gray-400">
+                  Reviews functionality coming soon!
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default PhoneDetails;

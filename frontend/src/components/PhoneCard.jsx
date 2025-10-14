@@ -19,6 +19,33 @@ const PhoneCard = ({ phone }) => {
       )
     : 0;
 
+  // Format condition for display
+  const formatCondition = (condition) => {
+    if (!condition) return "";
+    return condition
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
+  // Get condition badge color
+  const getConditionBadgeColor = (condition) => {
+    switch (condition) {
+      case "brand-new":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "refurbished":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "used-excellent":
+        return "bg-emerald-100 text-emerald-800 border-emerald-200";
+      case "used-good":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "used-fair":
+        return "bg-orange-100 text-orange-800 border-orange-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
   // Handle add to cart
   const handleAddToCart = (e) => {
     e.preventDefault(); // Prevent any default behavior
@@ -33,6 +60,7 @@ const PhoneCard = ({ phone }) => {
       originalPrice: phone.originalPrice,
       image: phone.image || phone.images?.[0]?.url,
       images: phone.images || [],
+      condition: phone.condition, // Include condition in cart
       inStock: phone.inStock !== false, // Default to true if not specified
     };
 
@@ -67,6 +95,12 @@ const PhoneCard = ({ phone }) => {
               Featured
             </span>
           )}
+          {/* Condition Badge */}
+          {phone.condition && phone.condition !== "brand-new" && (
+            <span className="absolute bottom-2 left-2 bg-white/90 backdrop-blur-sm text-gray-800 px-2 py-1 rounded-md text-xs font-medium border">
+              {formatCondition(phone.condition)}
+            </span>
+          )}
           {!phone.inStock && (
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
               <span className="text-white text-lg font-bold">Out of Stock</span>
@@ -82,7 +116,19 @@ const PhoneCard = ({ phone }) => {
           </h3>
         </Link>
 
-        <p className="text-sm text-gray-600 mb-2">{phone.brand}</p>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-sm text-gray-600">{phone.brand}</p>
+          {/* Condition Badge in Content Area */}
+          {phone.condition && (
+            <span
+              className={`px-2 py-1 rounded-full text-xs font-medium border ${getConditionBadgeColor(
+                phone.condition
+              )}`}
+            >
+              {formatCondition(phone.condition)}
+            </span>
+          )}
+        </div>
 
         <div className="flex items-center mb-3">
           <div className="flex items-center text-yellow-400">
@@ -136,6 +182,7 @@ PhoneCard.propTypes = {
     brand: PropTypes.string,
     price: PropTypes.number.isRequired,
     originalPrice: PropTypes.number,
+    condition: PropTypes.string, // Add condition to PropTypes
     image: PropTypes.string,
     images: PropTypes.arrayOf(
       PropTypes.shape({
