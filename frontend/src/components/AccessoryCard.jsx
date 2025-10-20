@@ -130,7 +130,7 @@ const AccessoryCard = ({ accessory }) => {
   } else {
     buttonLabel = "Add to Cart";
     buttonClass =
-      "w-full py-2 px-4 rounded-lg font-medium bg-purple-600 text-white hover:bg-purple-700 transition-colors";
+      "w-full py-2 px-4 rounded-lg font-medium bg-yellow-400 text-black hover:bg-yellow-500 transition-colors";
   }
 
   return (
@@ -173,7 +173,7 @@ const AccessoryCard = ({ accessory }) => {
 
         {/* Badges */}
         {accessory.featured && (
-          <div className="absolute top-2 left-2 bg-purple-500 text-white px-2 py-1 rounded text-xs font-semibold">
+          <div className="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs font-semibold">
             Featured
           </div>
         )}
@@ -195,7 +195,7 @@ const AccessoryCard = ({ accessory }) => {
       <div className="p-4">
         {/* Category & Brand */}
         <div className="flex items-center justify-between mb-1">
-          <p className="text-xs text-purple-600 font-medium">
+          <p className="text-xs text-gray-900 font-medium">
             {formatCategoryName(accessory.category)}
           </p>
           <p className="text-xs text-gray-500">{accessory.brand}</p>
@@ -208,7 +208,7 @@ const AccessoryCard = ({ accessory }) => {
 
         {/* Price */}
         <div className="flex items-center space-x-2 mb-3">
-          <span className="text-lg font-bold text-purple-600">
+          <span className="text-lg font-bold text-gray-900">
             {formatPrice(accessory.price)}
           </span>
           {accessory.originalPrice &&

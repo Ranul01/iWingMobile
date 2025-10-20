@@ -146,7 +146,7 @@ const PhoneCard = ({ phone }) => {
 
         <div className="flex items-center justify-between mb-4">
           <div>
-            <span className="text-2xl font-bold text-blue-600">
+            <span className="text-2xl font-bold text-gray-900">
               ${phone.price}
             </span>
             {phone.originalPrice && phone.originalPrice > phone.price && (
@@ -161,7 +161,7 @@ const PhoneCard = ({ phone }) => {
           onClick={handleAddToCart}
           className={`w-full py-2 px-4 rounded-lg font-semibold transition-colors flex items-center justify-center ${
             phone.inStock !== false
-              ? "bg-blue-600 text-white hover:bg-blue-700"
+              ? "bg-yellow-400 text-black hover:bg-yellow-500"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
           }`}
           disabled={phone.inStock === false}
