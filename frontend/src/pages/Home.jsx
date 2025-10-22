@@ -150,6 +150,13 @@ const Home = () => {
     });
   };
 
+  const handleWhatsAppClick = (message) => {
+    const whatsappUrl = `https://wa.me/94707075121?text=${encodeURIComponent(
+      message
+    )}`;
+    window.open(whatsappUrl, "_blank");
+  };
+
   return (
     <div className="bg-black text-white">
       {/* Hero Section */}
@@ -406,12 +413,15 @@ const Home = () => {
               <span className="relative z-10">Browse Phones</span>
               <div className="absolute inset-0 bg-gradient-to-r from-yellow-500 to-yellow-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </Link>
-            <Link
-              to="/contact"
+            <button
+              type="button"
               className="group border-2 border-gray-600 text-white px-12 py-4 rounded-full font-bold text-lg transition-all duration-300 hover:border-yellow-400 hover:bg-yellow-400/10"
+              onClick={() =>
+                handleWhatsAppClick("Hi, I would like to contact iWingMobile.")
+              }
             >
               Contact Us
-            </Link>
+            </button>
           </div>
         </div>
       </section>
