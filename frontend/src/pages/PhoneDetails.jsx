@@ -9,7 +9,7 @@ import {
   getReviewsForPhone,
   submitReview,
   hasUserReviewed,
-} from "../utils/firebaseApi";
+} from "../utils/api"; // <-- Use Supabase API
 import Navbar from "../components/Navbar";
 import ReviewForm from "../components/ReviewForm";
 import ReviewsList from "../components/ReviewsList";

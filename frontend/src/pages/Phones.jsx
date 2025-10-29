@@ -16,7 +16,7 @@ const Phones = () => {
     category: "",
     minPrice: "",
     maxPrice: "",
-    sortBy: "createdAt",
+    sortBy: "created_at", // <-- change to snake_case
     sortOrder: "desc",
   });
 
@@ -122,7 +122,7 @@ const Phones = () => {
       category: "",
       minPrice: "",
       maxPrice: "",
-      sortBy: "createdAt",
+      sortBy: "created_at", // <-- change to snake_case
       sortOrder: "desc",
     });
   };

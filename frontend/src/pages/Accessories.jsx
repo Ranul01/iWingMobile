@@ -15,7 +15,7 @@ const Accessories = () => {
     category: "",
     minPrice: "",
     maxPrice: "",
-    sortBy: "createdAt",
+    sortBy: "created_at", // <-- use snake_case for Supabase
     sortOrder: "desc",
   });
   const [pagination, setPagination] = useState({});
@@ -101,10 +101,10 @@ const Accessories = () => {
               onChange={(e) => handleFilterChange({ sortBy: e.target.value })}
               className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
-              <option value="createdAt">Newest First</option>
+              <option value="created_at">Newest First</option>
               <option value="price">Price: Low to High</option>
               <option value="name">Name: A to Z</option>
-              <option value="rating.average">Highest Rated</option>
+              <option value="rating_average">Highest Rated</option>
             </select>
             <select
               value={filters.sortOrder}
@@ -146,7 +146,7 @@ const Accessories = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
               {accessories.length > 0 ? (
                 accessories.map((accessory) => (
-                  <AccessoryCard key={accessory._id} accessory={accessory} />
+                  <AccessoryCard key={accessory.id || accessory._id} accessory={accessory} />
                 ))
               ) : (
                 <div className="col-span-full text-center py-12">
