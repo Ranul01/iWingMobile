@@ -174,9 +174,9 @@ const Hero = () => {
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-28 min-h-screen flex items-center">
         <div className="w-full text-center space-y-10">
           <h1 className="text-4xl md:text-6xl font-bold leading-tight text-white">
-            {renderAnimatedWords("Your Ultimate")}
+            {renderAnimatedWords("iWingMobile")}
             <span ref={highlightRef} className="block text-yellow-400 mt-4">
-              Mobile Destination
+              Your Ultimate Mobile Destination
             </span>
           </h1>
           <p

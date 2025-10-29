@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useCart } from "../context/CartContex";
+// import { useCart } from "../context/CartContex";
 import Cart from "./Cart";
 
 const Navbar = () => {
   const location = useLocation();
-  const { itemCount } = useCart();
+  // const { itemCount } = useCart();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -61,7 +61,7 @@ const Navbar = () => {
             {/* Right Side: Cart + Mobile Menu */}
             <div className="flex items-center space-x-2">
               {/* Cart Button */}
-              <button
+              {/* <button
                 onClick={() => setIsCartOpen(true)}
                 className="relative p-2 text-gray-300 hover:text-yellow-400 transition-colors hover:bg-yellow-400/10 rounded-md"
                 aria-label="Open cart"
@@ -85,7 +85,7 @@ const Navbar = () => {
                     {itemCount > 99 ? "99+" : itemCount}
                   </span>
                 )}
-              </button>
+              </button> */}
 
               {/* Mobile Menu Button */}
               <button

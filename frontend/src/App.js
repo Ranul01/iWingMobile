@@ -7,6 +7,8 @@ import Home from "./pages/Home";
 import Phones from "./pages/Phones";
 import Accessories from "./pages/Accessories";
 import Admin from "./pages/Admin";
+import PhoneDetails from "./pages/PhoneDetails";
+import AccessoryDetails from "./pages/AccessoryDetails";
 import "./index.css";
 
 function App() {
@@ -19,7 +21,9 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/phones" element={<Phones />} />
+              <Route path="/phones/:id" element={<PhoneDetails />} />
               <Route path="/accessories" element={<Accessories />} />
+              <Route path="/accessories/:id" element={<AccessoryDetails />} />
               <Route path="/admin" element={<Admin />} />
             </Routes>
           </main>
