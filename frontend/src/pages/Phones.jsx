@@ -12,7 +12,6 @@ const Phones = () => {
     page: 1,
     limit: 12,
     search: "",
-    brand: "",
     category: "",
     minPrice: "",
     maxPrice: "",
@@ -31,7 +30,6 @@ const Phones = () => {
         const response = await getPhones({
           sortBy: filters.sortBy,
           sortOrder: filters.sortOrder,
-          brand: filters.brand || undefined,
         });
 
         setPhones(response.data || []);
@@ -44,7 +42,7 @@ const Phones = () => {
     };
 
     fetchPhones();
-  }, [filters.sortBy, filters.sortOrder, filters.brand]);
+  }, [filters.sortBy, filters.sortOrder]);
 
   // Fetch available brands
   useEffect(() => {
@@ -60,7 +58,7 @@ const Phones = () => {
     fetchBrands();
   }, []);
 
-  // Client-side filtering for search and price
+  // Client-side filtering for search
   const filteredPhones = useMemo(() => {
     let result = [...phones];
 
@@ -75,20 +73,8 @@ const Phones = () => {
       );
     }
 
-    // Price filters
-    if (filters.minPrice) {
-      result = result.filter(
-        (phone) => phone.price >= Number(filters.minPrice)
-      );
-    }
-    if (filters.maxPrice) {
-      result = result.filter(
-        (phone) => phone.price <= Number(filters.maxPrice)
-      );
-    }
-
     return result;
-  }, [phones, filters.search, filters.minPrice, filters.maxPrice]);
+  }, [phones, filters.search]);
 
   // Pagination
   const totalItems = filteredPhones.length;
@@ -118,7 +104,6 @@ const Phones = () => {
       page: 1,
       limit: 12,
       search: "",
-      brand: "",
       category: "",
       minPrice: "",
       maxPrice: "",
@@ -170,29 +155,15 @@ const Phones = () => {
 
         {/* Filters */}
         <div className="mb-8 bg-white p-6 rounded-lg shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Search */}
             <input
               type="text"
               placeholder="Search phones..."
               value={filters.search}
               onChange={(e) => handleFilterChange({ search: e.target.value })}
-              className="md:col-span-2 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-
-            {/* Brand Filter */}
-            <select
-              value={filters.brand}
-              onChange={(e) => handleFilterChange({ brand: e.target.value })}
               className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">All Brands</option>
-              {brands.map((brand) => (
-                <option key={brand} value={brand}>
-                  {brand}
-                </option>
-              ))}
-            </select>
+            />
 
             {/* Sort By */}
             <select
@@ -205,28 +176,6 @@ const Phones = () => {
               <option value="name">Name</option>
               <option value="rating.average">Rating</option>
             </select>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Min Price */}
-            <input
-              type="number"
-              placeholder="Min Price"
-              value={filters.minPrice}
-              onChange={(e) => handleFilterChange({ minPrice: e.target.value })}
-              className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              min="0"
-            />
-
-            {/* Max Price */}
-            <input
-              type="number"
-              placeholder="Max Price"
-              value={filters.maxPrice}
-              onChange={(e) => handleFilterChange({ maxPrice: e.target.value })}
-              className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              min="0"
-            />
 
             {/* Sort Order */}
             <select
@@ -242,10 +191,7 @@ const Phones = () => {
           </div>
 
           {/* Reset Filters */}
-          {(filters.search ||
-            filters.brand ||
-            filters.minPrice ||
-            filters.maxPrice) && (
+          {filters.search && (
             <div className="mt-4">
               <button
                 onClick={handleResetFilters}
@@ -289,10 +235,7 @@ const Phones = () => {
           <div className="text-center py-12 bg-white rounded-lg">
             <p className="text-gray-500 text-lg mb-2">No phones found</p>
             <p className="text-gray-400">
-              {filters.search ||
-              filters.brand ||
-              filters.minPrice ||
-              filters.maxPrice
+              {filters.search
                 ? "Try adjusting your filters"
                 : "Add phones from the admin panel to display them here"}
             </p>
