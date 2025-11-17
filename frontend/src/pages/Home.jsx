@@ -226,13 +226,8 @@ const Home = () => {
             style={{ scrollBehavior: "smooth", paddingBottom: 8 }}
           >
             {displayPhones.length > 0 ? (
-              displayPhones.map((phone) => (
-                <div
-                  key={phone._id}
-                  className="phone-card snap-start flex-shrink-0 w-11/12 sm:w-1/2 md:w-1/3 lg:w-1/4"
-                >
-                  <PhoneCard phone={phone} />
-                </div>
+              featuredPhones.map((phone) => (
+                <PhoneCard key={phone.id || phone._id} phone={phone} />
               ))
             ) : (
               <div className="w-full text-center py-12">
@@ -312,7 +307,7 @@ const Home = () => {
             {displayAccessories.length > 0 ? (
               displayAccessories.map((accessory) => (
                 <div
-                  key={accessory._id}
+                  key={accessory.id || accessory._id}
                   className="accessory-card snap-start flex-shrink-0 w-11/12 sm:w-1/2 md:w-1/3 lg:w-1/4"
                 >
                   <AccessoryCard accessory={accessory} />

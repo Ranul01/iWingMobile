@@ -13,7 +13,9 @@ const Phones = () => {
     limit: 12,
     search: "",
     category: "",
-    sortBy: "createdAt",
+    minPrice: "",
+    maxPrice: "",
+    sortBy: "created_at", // <-- change to snake_case
     sortOrder: "desc",
   });
 
@@ -103,7 +105,9 @@ const Phones = () => {
       limit: 12,
       search: "",
       category: "",
-      sortBy: "createdAt",
+      minPrice: "",
+      maxPrice: "",
+      sortBy: "created_at", // <-- change to snake_case
       sortOrder: "desc",
     });
   };

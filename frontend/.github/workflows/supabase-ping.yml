@@ -1,0 +1,20 @@
+name: Supabase Keep-Alive Ping
+
+on:
+  schedule:
+    # Runs at 05:00 UTC every Monday, Wednesday, and Friday
+    - cron: '0 5 * * 1,3,5'
+  
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase keep_alive table
+        # This command makes a safe, read-only request to your new table.
+        run: |
+          curl -i \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/keep_alive?select=*&limit=1"
