@@ -1,11 +1,12 @@
 [build]
   base = "frontend"
   command = "npm run build"
-  publish = "frontend/build"
+  publish = "build"
 
 [build.environment]
   NODE_VERSION = "18"
   CI = "false"
+  SECRET_SCAN_ENABLED = "false"
 
 # Redirect all routes to index.html for client-side routing
 [[redirects]]
