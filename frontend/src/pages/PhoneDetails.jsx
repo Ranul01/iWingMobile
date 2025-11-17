@@ -357,7 +357,7 @@ const PhoneDetails = () => {
               )}
             </div>
 
-            {/* Price */}
+            {/* Price
             <div className="flex items-center gap-4">
               <span className="text-3xl lg:text-4xl font-bold text-yellow-400">
                 ${phone.price}
@@ -367,7 +367,7 @@ const PhoneDetails = () => {
                   ${phone.originalPrice}
                 </span>
               )}
-            </div>
+            </div> */}
 
             {/* Stock Status */}
             <div className="flex items-center gap-3">
