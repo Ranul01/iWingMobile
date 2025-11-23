@@ -9,7 +9,7 @@ const AccessoryCard = ({ accessory }) => {
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "LKR",
     }).format(price);
   };
 

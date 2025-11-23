@@ -100,7 +100,7 @@ const PhoneDetails = () => {
     // Create WhatsApp message with phone details
     const message = `Hi, I'm interested in buying ${phone.name} (${
       phone.brand
-    }) - $${phone.price}${selectedColor ? ` - Color: ${selectedColor}` : ""}${
+    }) - $${selectedColor ? ` - Color: ${selectedColor}` : ""}${
       quantity > 1 ? ` - Quantity: ${quantity}` : ""
     }`;
     const whatsappUrl = `https://wa.me/94707075121?text=${encodeURIComponent(
