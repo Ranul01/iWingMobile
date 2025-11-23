@@ -155,7 +155,8 @@ const Hero = () => {
           loop
           muted
           playsInline
-          preload="metadata"
+          autoPlay
+          preload="auto"
           onLoadedData={handleVideoLoad}
           onError={(e) => {
             console.debug("Video load error:", e);
